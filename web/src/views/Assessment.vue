@@ -3,7 +3,12 @@ import { ref } from 'vue'
 import { genFileId } from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
 
+// import { getAPI } from '@/helper/api';
+
 const upload = ref<UploadInstance>()
+// const uploadAPI = computed(() => {
+//   return getAPI("dev", "/ccep/upload")
+// })
 
 const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.clearFiles()
