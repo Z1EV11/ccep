@@ -27,19 +27,20 @@ const submitUpload = () => {
       ref="upload"
       class="upload-demo"
       action="http://localhost:3000/ccep/upload"
+      accept=".xls,.xlsx"
       :limit="1"
       :on-exceed="handleExceed"
       :auto-upload="false"
     >
       <template #trigger>
-        <el-button type="primary">select file</el-button>
+        <el-button type="primary">选择文件</el-button>
       </template>
       <el-button class="ml-3" type="success" @click="submitUpload">
-        upload to server
+        上传评估
       </el-button>
       <template #tip>
         <div class="el-upload__tip text-red">
-          limit 1 file, new file will cover the old file
+          限单文件上传, 新文件将会覆盖旧文件
         </div>
       </template>
     </el-upload>

@@ -1,7 +1,12 @@
 var path = require('path');
+var fs = require("fs")
 var express = require('express');
 var multer = require('multer')
 var moment = require('moment')
+var xlsx = require("node-xlsx")
+
+var readCCEPXlsx = require('../utils/office')
+var generateCCEPDocx = require('../utils/office')
 
 var router = express.Router();
 var storage = multer.diskStorage({
@@ -18,20 +23,49 @@ var storage = multer.diskStorage({
   }
 })
 var upload = multer({
-  storage: storage
+  storage: storage,
+  fileFilter: function(req, file, cb) {
+    var originalname = file.originalname;
+    console.log(originalname)
+    var suffix = originalname.substring(originalname.lastIndexOf("."), originalname.length)
+    var suffixList = ['.xls', '.xlsx']
+    if(suffixList.indexOf(suffix) > -1) {
+      cb(null, true)
+    } else {
+      // cb(null, false)
+      cb(new Error('上传文件格式错误!'))
+    }
+  }
 })
 
+/*
+  上传评估表格
+*/
 router.post('/upload', upload.single('file'), (req, res, next) => {
-  if(req.file && req.file.mimetype && req.file.mimetype == 'application/vnd.ms-excel') {
-    console.log(2, req.file)
-    res.send(req.file.fieldname)
-  } else {
-    res.send('upload failed')
+  console.log('upload', file);
+  if(!req.file || req.file.mimetype || req.file.mimetype !== 'application/vnd.ms-excel') {
+    res.send('上传文件有误，请按评估模板格式上传');
   }
+  // 读取评估表格
+  xlsxData = readCCEPXlsx(file.path)
+  // 生成评估报告
+  readCCEPXlsx(file.path, xlsxData)
+  // 删除评估表格
 });
 
-router.post('/assess', function(req, res, next) {
+/*
+  下载评估报告
+*/
+router.post('/download', function(req, res, next) {
   res.send('ccep/assess');
 });
+
+/*
+  下载评估表格模板
+*/
+router.post('/get_template', function(req, res, next) {
+  res.send('ccep/get_template');
+});
+
 
 module.exports = router;
