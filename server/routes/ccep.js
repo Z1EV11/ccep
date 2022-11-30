@@ -1,17 +1,15 @@
-var path = require('path');
-var fs = require("fs")
+const path = require('path');
+
 var express = require('express');
 var multer = require('multer')
 var moment = require('moment')
-var xlsx = require("node-xlsx")
 
-var readCCEPXlsx = require('../utils/office')
-var generateCCEPDocx = require('../utils/office')
+var office = require('../utils/office')
 
 var router = express.Router();
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/files/upload')
+    cb(null, 'public/files/upload'); // config
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = moment().format("YYMMDDHHmmss") + '-' + Math.round(Math.random() * 1E4)
@@ -26,7 +24,6 @@ var upload = multer({
   storage: storage,
   fileFilter: function(req, file, cb) {
     var originalname = file.originalname;
-    console.log(originalname)
     var suffix = originalname.substring(originalname.lastIndexOf("."), originalname.length)
     var suffixList = ['.xls', '.xlsx']
     if(suffixList.indexOf(suffix) > -1) {
@@ -39,33 +36,34 @@ var upload = multer({
 })
 
 /*
-  上传评估表格
+  download the Evaluation Sheet template
+*/
+router.get('/get_eval_template', function(req, res, next) {
+  res.download('./public/files/template/EVAL_template_221121.xls'); // config
+});
+
+/*
+  upload Evaluation Sheet
 */
 router.post('/upload', upload.single('file'), (req, res, next) => {
-  console.log('upload', file);
-  if(!req.file || req.file.mimetype || req.file.mimetype !== 'application/vnd.ms-excel') {
+  console.log('upload', req.file);
+  if(!req.file || !req.file.mimetype || req.file.mimetype !== 'application/vnd.ms-excel') {
     res.send('上传文件有误，请按评估模板格式上传');
   }
-  // 读取评估表格
-  xlsxData = readCCEPXlsx(file.path)
-  // 生成评估报告
-  readCCEPXlsx(file.path, xlsxData)
-  // 删除评估表格
+  var rootDir = req.app.get('rootDir');
+  var inputPath = path.join(rootDir, 'public/files/upload/',req.file.filename); 
+  data = office.readCCEPXlsx(inputPath);
+  var templatePath = path.join(rootDir, 'public/files/template/RPT_template_221121.docx'); // config
+  outputFile = req.file.filename.substring(0, req.file.filename.lastIndexOf("."))
+  var outputPath = path.join(rootDir, 'public/files/eval_rpt', `${outputFile}.docx`);
+  console.log('templatePath', templatePath);
+  console.log('outputPath', outputPath);
+  office.generateCCEPDocx(templatePath, outputPath, data);
+  // res.download(outputPath);
 });
 
-/*
-  下载评估报告
-*/
-router.post('/download', function(req, res, next) {
-  res.send('ccep/assess');
+router.post('/', function(req, res, next) {
+  res.send('ccep');
 });
-
-/*
-  下载评估表格模板
-*/
-router.post('/get_template', function(req, res, next) {
-  res.send('ccep/get_template');
-});
-
 
 module.exports = router;

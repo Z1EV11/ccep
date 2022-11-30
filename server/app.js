@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors()) // if env == dev
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// app.use('/users', usersRouter);
 app.use('/ccep', ccepRouter);
 
 // catch 404 and forward to error handler
@@ -41,5 +41,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.set('rootDir', __dirname);
 
 module.exports = app;
