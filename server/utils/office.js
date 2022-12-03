@@ -23,10 +23,10 @@ function sheets2data(sheets) {
     let sheetData = sheets[i].data;
     if(i == 0){
       basicInfo.id = 170412;
-      basicInfo.client = sheetData[1][1]; //需求确认后修改
+      basicInfo.client = sheetData[1][1]; // [!!!] demand confirmation
       basicInfo.project = sheetData[1][1];
-      basicInfo.expert1 = '蒋兴涛'; // 需求确认后修改
-      basicInfo.expert2 = '周冰';
+      basicInfo.expert1 = '蒋兴涛'; // [!!!] demand confirmation
+      basicInfo.expert2 = '周冰';   // [!!!]
       basicInfo.document = sheetData[4][1];
       continue;
     }
@@ -39,8 +39,8 @@ function sheets2data(sheets) {
       nesma.lang_factor = sheetData[6][1];
       nesma.exp_factor = sheetData[7][1];
       nesma.unit_price = sheetData[9][1];
-      nesma.UFP = sheetData[13][1]; // 如何取舍小数点
-      nesma.S = sheetData[13][2];   // 如何取舍小数点
+      nesma.UFP = sheetData[13][1]; // [!!!] decimal point
+      nesma.S = sheetData[13][2];   // [!!!]
       nesma.price2 = sheetData[13][5];
       nesma.prod_rate0 = sheetData[13][3];
       nesma.prod_rate = sheetData[14][3];
@@ -129,7 +129,7 @@ function sheets2data(sheets) {
         price0: nesma.price0,
         price: nesma.price,
         price1: nesma.price1,
-        price2: nesma.price2, // 非人力成本
+        price2: nesma.price2, // non-labor cost
         total_price0: nesma.price0+nesma.price2,
         total_price: nesma.price+nesma.price2,
         total_price1: nesma.price1+nesma.price2,
