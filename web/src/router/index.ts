@@ -16,21 +16,21 @@ const router = createRouter({
       component: CCEPView,
       children: [
         {
-          path: '/about',
-          name: 'about',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/AboutView.vue')
-        },
-        {
           path: '/evaluation',
           name: 'evaluation',
           // route level code-splitting
           // this generates a separate chunk (About.[hash].js) for this route
           // which is lazy-loaded when the route is visited.
-          component: () => import('../views/EvaluaionView.vue')
-        }
+          component: () => import('../views/evaluation/EvaluationView.vue')
+        },
+        {
+          path: '/system',
+          name: 'system',
+          // route level code-splitting
+          // this generates a separate chunk (About.[hash].js) for this route
+          // which is lazy-loaded when the route is visited.
+          component: () => import('../views/system/SystemView.vue')
+        },
       ]
     },
 

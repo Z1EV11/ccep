@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import Menu from '@/components/Menu.vue'
-import UserInfo from '@/components/UserInfo.vue'
+import Menu from '@/common/components/Menu.vue'
+import UserInfo from '@/common/components/UserInfo.vue'
 </script>
 
 <template>
@@ -9,7 +9,7 @@ import UserInfo from '@/components/UserInfo.vue'
     <el-container>
       <el-header>
         <nav>
-            <div class="logo-wrapper">logo</div>
+            <div class="logo-wrapper">CQCDI</div>
             <Menu />
             <UserInfo />
         </nav>
@@ -28,11 +28,18 @@ import UserInfo from '@/components/UserInfo.vue'
 }
 nav{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     width: 100%;
+    height: 100%;
 }
 .logo-wrapper {
     width: 20%;
+}
+.el-main {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

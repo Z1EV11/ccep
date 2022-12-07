@@ -16,8 +16,8 @@ const handleSelect = (key: string, keyPath: string[]) => {
       @select="handleSelect"
     >
       <el-menu-item index="1"><RouterLink to="/">Home</RouterLink></el-menu-item>
-      <el-menu-item index="2"><RouterLink to="/about">成本评估</RouterLink></el-menu-item>
-      <el-menu-item index="3"><RouterLink to="/evaluation">账号管理</RouterLink></el-menu-item>
+      <el-menu-item index="2"><RouterLink to="/evaluation">成本评估</RouterLink></el-menu-item>
+      <el-menu-item index="3"><RouterLink to="/system">系统管理</RouterLink></el-menu-item>
     </el-menu>
   </template>
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowDown } from '@element-plus/icons-vue'
+import { User, ArrowDown } from '@element-plus/icons-vue'
 
 const handleCommand = (command: string | number | object) => {
 //   ElMessage(`click on item ${command}`)

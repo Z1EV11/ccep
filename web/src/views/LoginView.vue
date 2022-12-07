@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import { User, Unlock, Position } from '@element-plus/icons-vue'
 
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({
@@ -12,19 +12,23 @@ const ruleForm = reactive({
 
 const rules = reactive<FormRules>({
   account: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
+    {
+      required: true,
+      message: '请输入账号',
+      trigger: 'blur'
+    },
   ],
   password: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: '请输入8-12位密码',
       trigger: 'change',
     },
   ],
   captcha: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: '请输入验证码',
       trigger: 'change',
     },
   ]
@@ -57,31 +61,21 @@ const onSubmit = () => {
           ref="ruleFormRef"
           :model="ruleForm"
           :rules="rules"
-          :inline="true"
           label-width="120px"
           class="login-form"
           status-icon
         >
+          <el-form-item prop="account">
+            <el-input v-model="ruleForm.account" :prefix-icon="User" type="text" placeholder="账号" />
+          </el-form-item>
+          <el-form-item prop="password">
+              <el-input v-model="ruleForm.password" :prefix-icon="Unlock" type="password" placeholder="密码" maxlength="12"  :show-password="true" />
+          </el-form-item>
+          <el-form-item prop="captcha">
+            <el-input v-model="ruleForm.captcha" :prefix-icon="Position" type="text" minlength="4" maxlength="4"  placeholder="验证码" />
+          </el-form-item>
           <div class="form-item-wrapper">
-            <div class="input-wrapper">
-              <el-input v-model="ruleForm.account" :prefix-icon="Search" id="account" placeholder="账号" />
-            </div>
-          </div>
-          <div class="form-item-wrapper">
-            <div class="input-wrapper">
-              <el-input v-model="ruleForm.password" :prefix-icon="Search" id="password"  type="password" placeholder="密码"  :show-password="true" />
-            </div>
-          </div>
-          <div class="form-item-wrapper">
-            <div class="input-wrapper">
-              <el-input v-model="ruleForm.captcha" :prefix-icon="Search" id="captcha" placeholder="验证码" />
-
-            </div>
-          </div>
-          <div class="form-item-wrapper">
-            <div class="input-wrapper">
-              <el-button class="submit-btn" type="primary" @click="onSubmit">登录</el-button>
-            </div>
+              <el-button class="submit-btn" type="primary" @click="submitForm">登录</el-button>
           </div>
         </el-form>
       </div>
@@ -136,6 +130,13 @@ const onSubmit = () => {
   width: 100%;
   height: 70%;
 }
+.el-form-item {
+  margin-bottom: 24px !important;
+}
+.el-input {
+  height: 40px;
+  right: 60ox !important;
+}
 .form-item-wrapper {
   display: inline-flex;
   justify-content: center;
@@ -144,16 +145,6 @@ const onSubmit = () => {
   height: 40px;
   margin: 0 auto;
   margin-bottom: 22px;
-}
-.input-wrapper {
-  display: flex;
-  justify-content: center;
-  width: 400px;
-  height: 100%;
-}
-.el-input {
-  height: 38px;
-  font-size: 16px;
 }
 .submit-btn {
   width: 100%;

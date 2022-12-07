@@ -48,9 +48,6 @@ router.get('/get_eval_template', function(req, res, next) {
 */
 router.post('/upload', upload.single('file'), (req, res, next) => {
   console.log('upload', req.file);
-  if(!req.file || !req.file.mimetype || req.file.mimetype !== 'application/vnd.ms-excel') {
-    res.send('上传文件有误，请按评估模板格式上传');
-  }
   var rootDir = req.app.get('rootDir');
   var inputPath = path.join(rootDir, 'public/files/upload/',req.file.filename); 
   data = office.readCCEPXlsx(inputPath);
@@ -60,13 +57,29 @@ router.post('/upload', upload.single('file'), (req, res, next) => {
   console.log('templatePath', templatePath);
   console.log('outputPath', outputPath);
   office.generateCCEPDocx(templatePath, outputPath, data);
-  res.download(outputPath);
+  res.send({
+    code: 200,
+    data: {
+      outputFile,
+    }
+  })
+  // res.download(outputPath);
   // fs.unlink(inputPath);
   // fs.unlink(outputPath);
 });
 
-router.post('/', function(req, res, next) {
-  res.send('ccep');
+/*
+  delete Evaluation project
+*/
+router.post('/del_prj', function(req, res, next) {
+  // 1.取请求参数 2.用id去删除项目 3.返回消息
+  const params = req.body;
+  res.send('del_prj');
+});
+
+router.post('/query_prj', function(req, res, next) {
+  // 1.取请求参数 2.用当前页号和单页数量去查询项目信息 3.返回查询结果
+  res.send('query_prj');
 });
 
 module.exports = router;
