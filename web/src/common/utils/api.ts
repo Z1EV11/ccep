@@ -1,11 +1,19 @@
-function getAPI(env: String, path: String):String {
-    if(env == "dev")
-        path = `http://localhost:3000${path}`
-    else if(env == "prod")
-        path = `http://localhost:3000${path}`
-    return path
+import axios from "axios"
+
+function getAPI(path: string):string {
+    const prefix = 'http://localhost:3000' // read global config 
+    return `${prefix}${path}`
+}
+
+const sendReq = (reqObj: { url: string; method: string; data: string }) => {
+    return axios({
+        url: getAPI(reqObj.url),
+        method: reqObj.method || 'post',
+        data: reqObj.data
+    });
 }
 
 export {
-    getAPI
+    getAPI,
+    sendReq
 }

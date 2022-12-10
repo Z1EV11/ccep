@@ -3,3 +3,4 @@
 /server/a.js
 /server/public/files/assess
 /server/public/files/upload
+/server/db/db_config.js

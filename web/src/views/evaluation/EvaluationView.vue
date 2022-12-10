@@ -1,31 +1,43 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
+import { ElMessage, type TableProps } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import AddEvalModal from './components/AddEvalModal.vue'
 
-const pageNo = ref(1)
 const addModalVisible = ref(false)
+const detailModalVisible = ref(false)
+let tableData = ref(<Array<Object>>[])
+  // let tableData = ref([])
+const pageNo = ref(1)
+const pageTotal = ref(0)
 
 onMounted(() => {
-  // axios({
-  //   method: 'post',
-  //   url: 'http://localhost:3000/ccep/query_prj',
-  //   data: {
-  //     pageNo: 1,
-  //     pageNum: 20
-  //   }
-  // }).then((res)=>{
-  //   if(res.data.msg == 200) {
-  //     ElMessage({
-  //       message: '查询成功',
-  //       type: 'success'
-  //     })
-  //   } else {
-  //     ElMessage.error('查询失败')
-  //   }
-  // });
+  axios({
+    method: 'post',
+    url: 'http://localhost:3000/ccep/query_prj',
+    data: {
+      pageNo: pageNo.value,
+      pageNum: 20
+    }
+  }).then((res)=>{
+    if(res.status == 200) {
+      res.data.prjList && res.data.prjList.forEach((item: any) => {
+        tableData.value.push({
+          name: item.prj_name,
+          type: item.eval_type,
+          client: item.eval_client,
+          time: item.eval_time,
+          expert: item.eval_experts,
+          experts: item.eval_experts
+        })
+      });
+      pageTotal.value = res.data.prjList[0].total;
+      // ElMessage.success('查询成功')
+    } else {
+      ElMessage.error('查询失败')
+    }
+  });
 });
 
 /*
@@ -42,8 +54,12 @@ const closeAddModal = () => {
 /*
   Check PRJ
 */
-function handleDetail() {
-  console.log('查看详情', addModalVisible.value)
+function openDetailModal() {
+  detailModalVisible.value = true
+}
+
+const closeDetailModal = () => {
+  addModalVisible.value = false
 }
 
 /*
@@ -57,7 +73,7 @@ function handleDel() {
       prj_id: '1'
     }
   }).then((res)=>{
-    if(res.data.msg == 200) {
+    if(res.status == 200) {
       ElMessage({
         message: '删除成功',
         type: 'success'
@@ -71,206 +87,45 @@ function handleDel() {
 /*
   handle Pagination
 */
-const handleCurrentChange = () => {
+const handleCurChange = (val: any) => {
   axios({
     method: 'post',
     url: 'http://localhost:3000/ccep/query_prj',
     data: {
-      pageNo: 1,
+      pageNo: val,
       pageNum: 20
     }
   }).then((res)=>{
-    if(res.data.msg == 200) {
-      tableData = res.data
+    if(res.status == 200) {
+      let dataList: Object[] = []
+      res.data.prjList.forEach((item: { prj_name: any; eval_type: any; eval_client: any; eval_time: any; eval_experts: any; }) => {
+        dataList.push({
+          name: item.prj_name,
+          type: item.eval_type,
+          client: item.eval_client,
+          time: item.eval_time,
+          expert: item.eval_experts,
+          experts: item.eval_experts
+        })
+      })
+      tableData.value = dataList
     } else {
       ElMessage.error('查询失败')
     }
   });
 }
 
-// mock
-let tableData = [
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-03',
-    name: '重庆信息通信咨询设计院有限公司',
-    state: '估算功能点',
-    city: 'Los Angeles',
-    address: '重庆信息通信咨询设计院有限公司',
-    zip: '董立陶',
-    tag: 'Home',
-  },
-  {
-    date: '2016-05-02',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036',
-    tag: 'Office',
-  },
-  {
-    date: '2016-05-04',
-    name: 'Tom',
-    state: 'California',
-    city: 'Los Angeles',
-    address: 'No. 189, Grove St, Los Angeles',
-    zip: 'CA 90036',
-    tag: 'Home',
-  }
-]
+/* mock */ 
+// tableData = [
+//   {
+//     name: '重庆信息通信咨询设计院有限公司',
+//     type: '估算功能点',
+//     client: '重庆信息通信咨询设计院有限公司',
+//     time: '2016-05-03',
+//     expert: '董立陶',
+//     experts: '董立陶'
+//   },
+// ]
 </script>
 
 <template>
@@ -285,14 +140,14 @@ let tableData = [
             <el-input size="small" placeholder="Type to search" />  
         </template>
         <el-table-column prop="name" label="项目名称" min-width="320" />
-        <el-table-column prop="state" label="评估类型" min-width="110" />
-        <el-table-column prop="address" label="送评单位" min-width="320" />
-        <el-table-column prop="date" label="送评时间" min-width="120" />
-        <el-table-column prop="zip" label="主评人" min-width="110" />
-        <el-table-column prop="zip" label="协评人" min-width="110" />
+        <el-table-column prop="type" label="评估类型" min-width="110" />
+        <el-table-column prop="client" label="送评单位" min-width="320" />
+        <el-table-column prop="time" label="送评时间" min-width="120" />
+        <el-table-column prop="expert" label="主评人" min-width="110" />
+        <el-table-column prop="experts" label="协评人" min-width="110" />
         <el-table-column fixed="right" label="操作" min-width="100">
           <template #default>
-            <el-button link type="primary" size="small" @click="handleDetail">详情</el-button>
+            <el-button link type="primary" size="small" @click="openDetailModal">详情</el-button>
             <el-button link type="primary" size="small" @click="handleDel">删除</el-button>
           </template>
         </el-table-column>
@@ -302,12 +157,12 @@ let tableData = [
         :page-size="20"
         :background="true"
         layout="total, prev, pager, next"
-        :total="100"
-        @current-change="handleCurrentChange"
+        :total="pageTotal"
+        @current-change="handleCurChange"
       />
     </div>
   </div>
-  <AddEvalModal :add-modal-visible="addModalVisible" @close-add-modal="closeAddModal" />
+  <AddEvalModal class="eval-add-modal" :add-modal-visible="addModalVisible" @close-add-modal="closeAddModal" />
 </template>
   
 <style scoped>
@@ -340,11 +195,14 @@ let tableData = [
   justify-content: center;
   flex-wrap: wrap;
   width: 100%;
-  height: 90%;
+  height: 958px;
   border: 1px solid black;
 }
 .cell {
   height: 40px;
   font-size: 16px !important;
+}
+.eval-add-modal {
+  width: 650px !important;
 }
 </style>

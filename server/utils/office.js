@@ -6,7 +6,7 @@ const easy_template = require("easy-template-x")
 /*
   读取评估表格 .xls, .xlsx
 */
-function readCCEPXlsx(filePath) {
+function readEvalXlsx(filePath) {
   var sheets = xlsx.parse(filePath);
   var data = sheets2data(sheets);
   return data;
@@ -142,7 +142,7 @@ function sheets2data(sheets) {
 /*
   生成评估报告 .doc, .docx
 */
-async function generateCCEPDocx(templatePath, filePath, data) {
+async function generateRptDocx(templatePath, filePath, data) {
   var TemplateHandler = easy_template.TemplateHandler;
   var templateFile = fs.readFileSync(templatePath);
   var handler = new TemplateHandler();
@@ -151,6 +151,6 @@ async function generateCCEPDocx(templatePath, filePath, data) {
 }
 
 module.exports = {
-  readCCEPXlsx,
-  generateCCEPDocx
+  readEvalXlsx,
+  generateRptDocx
 };
