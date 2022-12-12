@@ -3,6 +3,7 @@ import { reactive, ref, toRefs } from 'vue'
 import { genFileId, ElMessage } from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile, FormInstance } from 'element-plus'
 import axios from 'axios';
+import { sendReq } from '@/common/utils/api';
 
 const props = defineProps({
   addModalVisible: Boolean
@@ -15,7 +16,7 @@ const upload = ref<UploadInstance>()
 const ruleForm = reactive({
   prjID: '',
   prjName: '',
-  evalMehod: [],
+  evalMehod: '',
   prjClient: '',
   prjExperts: []
 })
@@ -74,7 +75,7 @@ function addPRJ(res: any) {
       }
     }).then((res)=>{
       emits("close-add-modal")
-      if(res.data.status == 200) {
+      if(res.status == 200) {
         ElMessage({
           message: '项目新增成功',
           type: 'success'
@@ -132,7 +133,7 @@ const prjExpertsOptions = [
         </el-form-item>
         <el-form-item label="评估方法" prop="evalMehod" :label-width="100" >
           <el-select
-            v-model="ruleForm.evalMehod"
+            v-model="ruleForm"
             placeholder=""
             style="width: 240px"
           >

@@ -5,7 +5,7 @@ function getAPI(path: string):string {
     return `${prefix}${path}`
 }
 
-const sendReq = (reqObj: { url: string; method: string; data: string }) => {
+const sendReq = (reqObj: { url: string; method: string; data: object }) => {
     return axios({
         url: getAPI(reqObj.url),
         method: reqObj.method || 'post',

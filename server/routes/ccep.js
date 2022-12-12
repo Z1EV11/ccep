@@ -90,12 +90,13 @@ router.post('/add_prj', function(req, res, next) {
   delete evaluation project
 */
 router.post('/del_prj', function(req, res, next) {
-  PrjTbl.delPrj(
-    req.body.id
-  );
-  res.send({
-    status: 200
-  })
+  PrjTbl.delPrj({
+    prj_id: req.body.prjID
+  }, (results) => {
+    res.send({
+      status: 200
+    });
+  });
 });
 
 /*
@@ -110,6 +111,19 @@ router.post('/query_prj', function(req, res, next) {
     // conn.end();
     res.send({
       prjList: Object.values(results)
+    });
+  });
+});
+
+/*
+  query details of evaluation project
+*/
+router.post('/detail_prj', function(req, res, next) {
+  PrjTbl.delPrj({
+    prj_id: req.body.prjID
+  }, (results) => {
+    res.send({
+      status: 200
     });
   });
 });

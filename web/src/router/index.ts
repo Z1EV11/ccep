@@ -14,6 +14,7 @@ const router = createRouter({
       path: '/',
       name: 'ccep',
       component: CCEPView,
+      redirect: '/evaluation',
       children: [
         {
           path: '/evaluation',

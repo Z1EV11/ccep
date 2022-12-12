@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ElMessage, type TableProps } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import axios from 'axios';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, ref, toRaw } from 'vue';
 import AddEvalModal from './components/AddEvalModal.vue'
+import { getAPI } from '@/common/utils/api';
 
 const addModalVisible = ref(false)
 const detailModalVisible = ref(false)
@@ -11,34 +12,50 @@ let tableData = ref(<Array<Object>>[])
   // let tableData = ref([])
 const pageNo = ref(1)
 const pageTotal = ref(0)
+const evalMehodMap: any = {
+  NESMA_IND: '功能点指示法',
+  NESMA_EVAL: '功能点估算法'
+}
 
 onMounted(() => {
+  queryRefresh({
+    pageNo: pageNo.value
+  })
+});
+
+/*
+  Query PRJ
+*/
+function queryRefresh(params: any) {
   axios({
     method: 'post',
-    url: 'http://localhost:3000/ccep/query_prj',
+    url: getAPI('/ccep/query_prj'),
     data: {
-      pageNo: pageNo.value,
+      pageNo: params.pageNo,
       pageNum: 20
     }
   }).then((res)=>{
     if(res.status == 200) {
+      let dataList: Object[] = []
       res.data.prjList && res.data.prjList.forEach((item: any) => {
-        tableData.value.push({
-          name: item.prj_name,
-          type: item.eval_type,
-          client: item.eval_client,
-          time: item.eval_time,
+        dataList.push({
+          prjID: item.prj_id,
+          prjName: item.prj_name,
+          evalMehod: evalMehodMap[item.eval_method],
+          prjClient: item.prj_client,
+          evalTime: item.eval_time,
           expert: item.eval_experts,
           experts: item.eval_experts
         })
       });
+      tableData.value = dataList;
       pageTotal.value = res.data.prjList[0].total;
       // ElMessage.success('查询成功')
     } else {
       ElMessage.error('查询失败')
     }
   });
-});
+}
 
 /*
   Add PRJ
@@ -65,12 +82,13 @@ const closeDetailModal = () => {
 /*
   Del PRJ
 */
-function handleDel() {
+function handleDel(index: number, row: any) {
+  const rowData = toRaw(row)
   axios({
     method: 'post',
-    url: 'http://localhost:3000/ccep/del_prj',
+    url: getAPI('/ccep/del_prj'),
     data: {
-      prj_id: '1'
+      prjID: rowData.prjID
     }
   }).then((res)=>{
     if(res.status == 200) {
@@ -78,6 +96,7 @@ function handleDel() {
         message: '删除成功',
         type: 'success'
       })
+      queryRefresh({pageNo: 1})
     } else {
       ElMessage.error('删除失败')
     }
@@ -88,31 +107,9 @@ function handleDel() {
   handle Pagination
 */
 const handleCurChange = (val: any) => {
-  axios({
-    method: 'post',
-    url: 'http://localhost:3000/ccep/query_prj',
-    data: {
-      pageNo: val,
-      pageNum: 20
-    }
-  }).then((res)=>{
-    if(res.status == 200) {
-      let dataList: Object[] = []
-      res.data.prjList.forEach((item: { prj_name: any; eval_type: any; eval_client: any; eval_time: any; eval_experts: any; }) => {
-        dataList.push({
-          name: item.prj_name,
-          type: item.eval_type,
-          client: item.eval_client,
-          time: item.eval_time,
-          expert: item.eval_experts,
-          experts: item.eval_experts
-        })
-      })
-      tableData.value = dataList
-    } else {
-      ElMessage.error('查询失败')
-    }
-  });
+  queryRefresh({
+    pageNo: val
+  })
 }
 
 /* mock */ 
@@ -136,19 +133,20 @@ const handleCurChange = (val: any) => {
     </div>
     <div class="table-body-wrapper">
       <el-table :data="tableData" table-layout="auto" stripe  style="width: 100%; height: 840px; font-size: 16px;">
-        <template #header>
+        <!-- <template #header>
             <el-input size="small" placeholder="Type to search" />  
-        </template>
-        <el-table-column prop="name" label="项目名称" min-width="320" />
-        <el-table-column prop="type" label="评估类型" min-width="110" />
-        <el-table-column prop="client" label="送评单位" min-width="320" />
-        <el-table-column prop="time" label="送评时间" min-width="120" />
+        </template> -->
+        <el-table-column v-if="true"  prop="prjID" label="id" min-width="320" />
+        <el-table-column prop="prjName" label="项目名称" min-width="320" />
+        <el-table-column prop="evalMehod" label="评估类型" min-width="110" />
+        <el-table-column prop="prjClient" label="送评单位" min-width="320" />
+        <el-table-column prop="evalTime" label="送评时间" min-width="120" />
         <el-table-column prop="expert" label="主评人" min-width="110" />
         <el-table-column prop="experts" label="协评人" min-width="110" />
         <el-table-column fixed="right" label="操作" min-width="100">
-          <template #default>
+          <template #default="tableOption">
             <el-button link type="primary" size="small" @click="openDetailModal">详情</el-button>
-            <el-button link type="primary" size="small" @click="handleDel">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleDel(tableOption.$index, tableOption.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
