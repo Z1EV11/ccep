@@ -179,7 +179,7 @@ const prjExpertsOptions = [
             </el-button> -->
             <template #tip>
               <div class="el-upload__tip text-red">
-                <el-link :href="downloadEvalTemplate" :underline="false" type="primary">软件造价评估结果记录表模板下载</el-link>
+                <el-link :href="downloadEvalTemplate" :underline="false" type="primary">软件造价评估结果记录表模板</el-link>
               </div>
             </template>
           </el-upload>

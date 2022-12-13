@@ -11,10 +11,10 @@ var PrjTbl = require('../db/prj')
 var router = express.Router();
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/files/upload');
+    cb(null, 'public/files/eval_upload');
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = moment().format("YYMMDDHHmmss") + '-' + Math.round(Math.random() * 1E4)
+    const uniqueSuffix = moment().format("YYMMDDHHmmss") + Math.round(Math.random() * 1E4)
     var originalname = Buffer.from(file.originalname, "latin1").toString(
       "utf8"
     );
@@ -47,10 +47,10 @@ router.get('/get_eval_template', function(req, res, next) {
 /*
   upload evaluation excel
 */
-router.post('/upload', upload.single('file'), (req, res, next) => {
+router.post('/eval_upload', upload.single('file'), (req, res, next) => {
   console.log('upload', req.file);
   var rootDir = req.app.get('rootDir');
-  var inputPath = path.join(rootDir, 'public/files/upload/',req.file.filename); 
+  var inputPath = path.join(rootDir, 'public/files/eval_upload/',req.file.filename); 
   data = office.readEvalXlsx(inputPath);
   var templatePath = path.join(rootDir, 'public/files/template/RPT_template_221121.docx'); // [***] config
   outputFile = req.file.filename.substring(0, req.file.filename.lastIndexOf("."))
@@ -119,13 +119,33 @@ router.post('/query_prj', function(req, res, next) {
   query details of evaluation project
 */
 router.post('/detail_prj', function(req, res, next) {
-  PrjTbl.delPrj({
+  PrjTbl.queryByID({
     prj_id: req.body.prjID
   }, (results) => {
     res.send({
-      status: 200
+      prjList: Object.values(results)
     });
   });
+});
+
+/*
+  download upload evaluation
+*/
+router.get('/get_eval_upload', function(req, res, next) {
+  const rootDir = req.app.get('rootDir');
+  // filePath = path.join('./public/files/eval_rpt', req.query.fileName)
+  filePath = `./public/files/eval_upload/${req.query.fileName}`;
+  res.download(filePath);
+});
+
+/*
+  download eval report
+*/
+router.get('/get_eval_rpt', function(req, res, next) {
+  const rootDir = req.app.get('rootDir');
+  // filePath = path.join('./public/files/eval_rpt', req.query.fileName)
+  filePath = `./public/files/eval_rpt/${req.query.fileName}`;
+  res.download(filePath);
 });
 
 module.exports = router;

@@ -5,14 +5,14 @@ const PrjTbl = {
         const project = {
             ...params
         };
-        const sqlStr = 'insert into project set ?';
+        const sqlStr = 'INSERT INTO project SET ?';
         conn.query(sqlStr, project, (err, results) => {
             if(err) return console.log(err.message);
             callback(results)                                                                                            
         })
     },
     delPrj: (params, callback) => {
-        const sqlStr = 'delete from project where prj_id=?';
+        const sqlStr = 'DELETE FROM project WHERE prj_id=?';
         conn.query(sqlStr, params.prj_id, (err, results) => {
             if(err) return console.log(err.message)
             callback(results)
@@ -26,6 +26,13 @@ const PrjTbl = {
             if(err) return console.log(err.message);
             callback(results, conn)
         });
+    },
+    queryByID: (params, callback) => {
+        const sqlStr = 'SELECT * FROM project WHERE prj_id=?';
+        conn.query(sqlStr, params.prj_id, (err, results) => {
+            if(err) return console.log(err.message)
+            callback(results)
+        })
     }
 };
 
