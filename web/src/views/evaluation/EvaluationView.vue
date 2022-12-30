@@ -180,7 +180,7 @@ const handleCurChange = (val: any) => {
         <!-- <template #header>
             <el-input size="small" placeholder="Type to search" />  
         </template> -->
-        <el-table-column v-if="true"  prop="prjID" label="id" min-width="320" />
+        <el-table-column v-if="false"  prop="prjID" label="id" min-width="320" />
         <el-table-column prop="prjName" label="项目名称" min-width="320" />
         <el-table-column prop="evalMehod" label="评估类型" min-width="110" />
         <el-table-column prop="prjClient" label="送评单位" min-width="320" />

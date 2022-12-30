@@ -9,27 +9,17 @@ import { getAPI } from '@/common/utils/api';
 
 const addModalVisible = ref(false)
 const detailModalVisible = ref(false)
-interface Project {
-  prjID: string,
-  prjName: string,
-  evalMehod: string,
-  prjClient: string,
-  evalTime: string,
-  prjExperts: string,
-  evalPath: string,
-  rptPath: string
+interface User {
+  usrAccount: string,
+  usrName: string,
+  usrAuth: string
 }
-let detailFormParams = reactive(<Project>{
-  prjID: '',
-  prjName: '',
-  evalMehod: '',
-  prjClient: '',
-  evalTime: '',
-  prjExperts: '',
-  evalPath: '',
-  rptPath: ''
+let detailFormParams = reactive(<User>{
+  usrAccount: '',
+  usrName: '',
+  usrAuth: ''
 })
-let tableData = ref(<Array<Project>>[])
+let tableData = ref(<Array<User>>[])
 const pageNo = ref(1)
 const pageTotal = ref(0)
 const evalMehodMap: any = {
@@ -49,7 +39,7 @@ onMounted(() => {
 function queryRefresh(params: any) {
   axios({
     method: 'post',
-    url: getAPI('/ccep/query_prj'),
+    url: getAPI('/user/query_usr'),
     data: {
       pageNo: params.pageNo,
       pageNum: 20
@@ -57,19 +47,15 @@ function queryRefresh(params: any) {
   }).then((res)=>{
     if(res.status == 200) {
       let dataList: Object[] = []
-      res.data.prjList && res.data.prjList.forEach((item: any) => {
+      res.data.usrList && res.data.usrList.forEach((item: any) => {
         dataList.push({
-          prjID: item.prj_id,
-          prjName: item.prj_name,
-          evalMehod: evalMehodMap[item.eval_method],
-          prjClient: item.prj_client,
-          evalTime: item.eval_time,
-          expert: item.eval_experts,
-          experts: item.eval_experts
+          usrAccount: item.usr_account,
+          usrName: item.usr_name,
+          usrAuth: item.usr_auth
         })
       });
       tableData.value = dataList;
-      pageTotal.value = res.data.prjList[0].total;
+      pageTotal.value = res.data.usrList[0].total;
       // ElMessage.success('查询成功')
     } else {
       ElMessage.error('查询失败')
@@ -99,18 +85,18 @@ function openDetailModal(index: number, row: any) {
     data: {
       prjID: rowData.prjID
     }
-  }).then((res)=>{
+  }).then((res) => {
     if(res.status == 200) {
-      const prjData = res.data.prjList[0];
-      detailFormParams.prjID = prjData.prj_id,
-      detailFormParams.prjName = prjData.prj_name,
-      detailFormParams.evalMehod = prjData.eval_method,
-      detailFormParams.prjClient = prjData.prj_client,
-      detailFormParams.evalTime = prjData.eval_time,
+      const usrData = res.data.usrList[0];
+      detailFormParams.prjID = usrData.prj_id,
+      detailFormParams.prjName = usrData.prj_name,
+      detailFormParams.evalMehod = usrData.eval_method,
+      detailFormParams.prjClient = usrData.prj_client,
+      detailFormParams.evalTime = usrData.eval_time,
       // detailModalParams.expert = prjData.eval_experts,
-      detailFormParams.prjExperts = prjData.eval_experts
-      detailFormParams.evalPath = prjData.eval_path
-      detailFormParams.rptPath = prjData.rpt_path
+      detailFormParams.prjExperts = usrData.eval_experts
+      detailFormParams.evalPath = usrData.eval_path
+      detailFormParams.rptPath = usrData.rpt_path
       detailModalVisible.value = true
     } else {
       ElMessage.error('查询详情失败')
@@ -171,22 +157,18 @@ const handleCurChange = (val: any) => {
 
 <template>
   <div class="table-wrapper">
-    <div class="table-option-title"><span>项目列表</span></div>
+    <div class="table-option-title"><span>用户列表</span></div>
     <div class="table-option-wrapper">
-        <el-button type="primary" :icon="Plus" @click="openAddModal">新建项目</el-button>
+        <el-button type="primary" :icon="Plus" @click="openAddModal">添加用户</el-button>
     </div>
     <div class="table-body-wrapper">
       <el-table :data="tableData" table-layout="auto" stripe  style="width: 100%; height: 840px; font-size: 16px;">
         <!-- <template #header>
             <el-input size="small" placeholder="Type to search" />  
         </template> -->
-        <el-table-column v-if="true"  prop="prjID" label="id" min-width="320" />
-        <el-table-column prop="prjName" label="项目名称" min-width="320" />
-        <el-table-column prop="evalMehod" label="评估类型" min-width="110" />
-        <el-table-column prop="prjClient" label="送评单位" min-width="320" />
-        <el-table-column prop="evalTime" label="送评时间" min-width="120" />
-        <el-table-column prop="expert" label="主评人" min-width="110" />
-        <el-table-column prop="experts" label="协评人" min-width="110" />
+        <el-table-column prop="usrAccount" label="账号" min-width="320" />
+        <el-table-column prop="usrName" label="用户名" min-width="320" />
+        <el-table-column prop="usrAuth" label="角色" min-width="110" />
         <el-table-column fixed="right" label="操作" min-width="100">
           <template #default="tableOption">
             <el-button link type="primary" size="small" @click="openDetailModal(tableOption.$index, tableOption.row)">详情</el-button>

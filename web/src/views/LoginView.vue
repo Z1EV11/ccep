@@ -1,7 +1,12 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { useRouter } from 'vue-router';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Unlock, Position } from '@element-plus/icons-vue'
+import { getAPI } from '@/common/utils/api';
+import axios from 'axios';
+import { useUserStore } from '@/stores/user';
+
 
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({
@@ -9,6 +14,8 @@ const ruleForm = reactive({
   password: '',
   captcha: ''
 })
+const captchaURL = ref(getAPI('/captcha'))
+const router = useRouter()
 
 const rules = reactive<FormRules>({
   account: [
@@ -34,19 +41,42 @@ const rules = reactive<FormRules>({
   ]
 })
 
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-    } else {
-      console.log('error submit!', fields)
-    }
-  })
+function refreshCaptcha() {
+  captchaURL.value = getAPI('/captcha?k='+new Date().getMilliseconds()+Math.floor(Math.random()*1E4))
 }
 
-const onSubmit = () => {
-  
+const onSubmit = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  const url = getAPI('/user/login')
+  axios({
+    method: 'post',
+    url,
+    data: {
+      account: ruleForm.account,
+      password: ruleForm.password,
+      captcha: ruleForm.captcha
+    }
+  }).then((res) => {
+    if(res.status == 200) {
+      const user = useUserStore()
+      const userData = res.data.usrList[0]
+      user.setUser({
+        userID: userData.user_account, 
+        userName: userData.user_name
+      })
+      ElMessage.success('登录成功')
+      router.push('/evaluation')
+    } else {
+      ElMessage.error('登录失败')
+    }
+  })
+  // await formEl.validate((valid, fields) => {
+  //   if (valid) {
+  //     console.log('submit!')
+  //   } else {
+  //     console.log('error submit!', fields)
+  //   }
+  // })
 }
 </script>
 
@@ -55,7 +85,7 @@ const onSubmit = () => {
   <div class="login-container">
     <div class="login-left"></div>
     <div class="login-right">
-      <div class="login-wrapper">
+      <div class="login-wrapper draw">
         <div><span>软件造价评估平台 欢迎您！</span></div>
         <el-form
           ref="ruleFormRef"
@@ -72,10 +102,11 @@ const onSubmit = () => {
               <el-input v-model="ruleForm.password" :prefix-icon="Unlock" type="password" placeholder="密码" maxlength="12"  :show-password="true" />
           </el-form-item>
           <el-form-item prop="captcha">
-            <el-input v-model="ruleForm.captcha" :prefix-icon="Position" type="text" minlength="4" maxlength="4"  placeholder="验证码" />
+            <el-input class="captcha-input" v-model="ruleForm.captcha" :prefix-icon="Position" type="text" minlength="4" maxlength="4"  placeholder="验证码" />
+            <el-image :src="captchaURL" fit="contain" @click="refreshCaptcha"/>
           </el-form-item>
           <div class="form-item-wrapper">
-              <el-button class="submit-btn" type="primary" @click="submitForm">登录</el-button>
+              <el-button class="submit-btn" type="primary" @click="onSubmit">登录</el-button>
           </div>
         </el-form>
       </div>
@@ -88,7 +119,7 @@ const onSubmit = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -101,12 +132,13 @@ const onSubmit = () => {
 .login-right {
   display: flex;
   justify-content: center;
-  width: 700px;
+  width: 1000px;
   height: 100%;
   border: 1px solid black;
   align-items: center;
 }
 .login-wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,7 +146,6 @@ const onSubmit = () => {
   height: 400px;
   border: 1px solid var(--el-color-primary-light-3);
   border-radius: 3px;
-  /* border: 1px solid black; */
 }
 .login-wrapper>div {
   display: flex;
@@ -135,7 +166,14 @@ const onSubmit = () => {
 }
 .el-input {
   height: 40px;
-  right: 60ox !important;
+  right: 60px !important;
+}
+.captcha-input {
+  width: 60%;
+}
+.el-image {
+  right: 25px;
+  height: 40px;
 }
 .form-item-wrapper {
   display: inline-flex;
@@ -147,7 +185,7 @@ const onSubmit = () => {
   margin-bottom: 22px;
 }
 .submit-btn {
-  width: 100%;
+  width: 70%;
   height: 38px;
   border-radius: 16px;
 }

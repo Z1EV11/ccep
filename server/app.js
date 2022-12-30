@@ -3,10 +3,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var session =require("express-session")
 var cors = require('cors');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/user');
 var ccepRouter = require('./routes/ccep');
 
 var app = express();
@@ -20,10 +21,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'CQCDI',
+  name: 'tk',
+  cookie: {maxAge: 60000},
+  resave: false,
+  saveUninitialized: true,
+}));
 app.use(cors()) // config: cross domain
 
 app.use('/', indexRouter);
-// app.use('/users', usersRouter);
+app.use('/user', usersRouter);
 app.use('/ccep', ccepRouter);
 
 // catch 404 and forward to error handler
