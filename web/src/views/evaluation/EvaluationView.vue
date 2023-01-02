@@ -64,8 +64,8 @@ function queryRefresh(params: any) {
           evalMehod: evalMehodMap[item.eval_method],
           prjClient: item.prj_client,
           evalTime: item.eval_time,
-          expert: item.eval_experts,
-          experts: item.eval_experts
+          expert: item.eval_expert,
+          experts: item.eval_expert
         })
       });
       tableData.value = dataList;
@@ -108,7 +108,7 @@ function openDetailModal(index: number, row: any) {
       detailFormParams.prjClient = prjData.prj_client,
       detailFormParams.evalTime = prjData.eval_time,
       // detailModalParams.expert = prjData.eval_experts,
-      detailFormParams.prjExperts = prjData.eval_experts
+      detailFormParams.prjExperts = prjData.eval_expert
       detailFormParams.evalPath = prjData.eval_path
       detailFormParams.rptPath = prjData.rpt_path
       detailModalVisible.value = true
@@ -186,7 +186,7 @@ const handleCurChange = (val: any) => {
         <el-table-column prop="prjClient" label="送评单位" min-width="320" />
         <el-table-column prop="evalTime" label="送评时间" min-width="120" />
         <el-table-column prop="expert" label="主评人" min-width="110" />
-        <el-table-column prop="experts" label="协评人" min-width="110" />
+        <!-- <el-table-column prop="experts" label="协评人" min-width="110" /> -->
         <el-table-column fixed="right" label="操作" min-width="100">
           <template #default="tableOption">
             <el-button link type="primary" size="small" @click="openDetailModal(tableOption.$index, tableOption.row)">详情</el-button>

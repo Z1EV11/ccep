@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import CCEPView from '@/views/CCEPView.vue'
 
+import { isAuthenticated } from '@/router/auth'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -15,6 +17,9 @@ const router = createRouter({
       name: 'ccep',
       component: CCEPView,
       redirect: '/evaluation',
+      meta: {
+        requireAuth: true
+      },
       children: [
         {
           path: '/evaluation',
@@ -36,6 +41,16 @@ const router = createRouter({
     },
 
   ]
+})
+
+// Global Guard
+router.beforeEach((to, from, next) => {
+  if (to.name !== 'login') {
+    isAuthenticated()
+    next()
+  } else {
+    next()
+  }
 })
 
 export default router

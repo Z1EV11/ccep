@@ -24,7 +24,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: 'CQCDI',
   name: 'tk',
-  cookie: {maxAge: 60000},
+  cookie: {
+    maxAge: 24*60*60*1000
+  },
   resave: false,
   saveUninitialized: true,
 }));
@@ -49,6 +51,15 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+app.use(function(req,res,next) {
+  if(req.session.token) {
+    next();
+  } else {
+    return res.redirect('/login')
+  }
+})
 
 // global var
 app.set('rootDir', __dirname);

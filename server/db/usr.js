@@ -27,8 +27,15 @@ const UsrTbl = {
             callback(results, conn)
         });
     },
+    queryByPwd: (params, callback) => {
+        const sqlStr = 'SELECT usr_account, usr_name, usr_auth FROM user WHERE usr_account=? and usr_pwd=?';
+        conn.query(sqlStr, [params.usr_account, params.usr_pwd], (err, results) => {
+            if(err) return console.log(err.message)
+            callback(results)
+        })
+    },
     queryByID: (params, callback) => {
-        const sqlStr = 'SELECT usr_name, usr_auth FROM user WHERE usr_account=? and usr_pwd=?';
+        const sqlStr = 'SELECT usr_account, usr_name, usr_auth FROM user WHERE usr_account=?';
         conn.query(sqlStr, params.usr_account, (err, results) => {
             if(err) return console.log(err.message)
             callback(results)

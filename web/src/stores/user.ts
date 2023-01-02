@@ -1,16 +1,25 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useUserStore = defineStore('user', () => {
-  const id = ref('')
-  const name = ref('')
-  function setUser(user: { userID: string; userName: string }) {
-    id.value = user.userID
-    name.value = user.userName
-  }
-  function getUser() {
-    return { id, name }
-  }
+export const useUserStore = defineStore(
+  'user', 
+  () => {
+    const userID = ref('')
+    const userName = ref('')
 
-  return { setUser, getUser }
-})
+    function setUser(user: { userID: string; userName: string }) {
+      userID.value = user.userID
+      userName.value = user.userName
+    }
+    function getUser() {
+      return { userID, userName }
+    }
+
+    return { userID, userName }
+  }, 
+  {
+    persist: {
+      storage: sessionStorage
+    }
+  }
+)

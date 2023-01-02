@@ -2,12 +2,27 @@
 import { useUserStore } from '@/stores/user';
 import { User, ArrowDown } from '@element-plus/icons-vue'
 
+
 const user = useUserStore()
-const { name } = user.getUser()
 const squareUrl = '@/assets/avatar.png'
 
 const handleCommand = (command: string | number | object) => {
-//   ElMessage(`click on item ${command}`)
+    switch(command) {
+        case 'changePwd':
+            handleChangePwd()
+            break;
+        case 'logout':
+            handleLogout()
+            break;
+    }
+}
+
+function handleChangePwd() {
+
+} 
+
+function handleLogout() {
+
 }
 </script>
 
@@ -17,12 +32,12 @@ const handleCommand = (command: string | number | object) => {
         <div><el-avatar shape="square" :size="29" :src="squareUrl" /></div>
         <el-dropdown class="user-dropdown" @command="handleCommand">
             <span class="el-dropdown-link">
-                {{name}}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                {{user.$state.userName}}<el-icon class="el-icon--right"><arrow-down /></el-icon>
             </span>
             <template #dropdown>
                 <el-dropdown-menu>
-                <el-dropdown-item command="a">修改密码</el-dropdown-item>
-                <el-dropdown-item command="b">退出登录</el-dropdown-item>
+                <el-dropdown-item command="changePwd">修改密码</el-dropdown-item>
+                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
             </template>
         </el-dropdown>

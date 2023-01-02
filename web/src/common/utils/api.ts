@@ -1,8 +1,16 @@
 import axios from "axios"
 
+import { config } from "../../config"
+
 function getAPI(path: string):string {
-    const prefix = 'http://localhost:3000' // read global config 
-    return `${prefix}${path}`
+    const env = config.env;
+    let domain= ''
+    if(env == 'dev') {
+        domain = config.dev.prefix;
+    } else if(env == 'prod ') {
+        domain = config.prod.beDomain;
+    }
+    return `${domain}${path}`
 }
 
 const sendReq = (reqObj: { url: string; method: string; data: object }) => {

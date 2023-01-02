@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
   // res.redirect('/login');
 });
 
-router.get('/captcha/:k', function(req, res, next) {
+router.get('/captcha', function(req, res, next) {
   const cap = svgCaptcha.create({
       // 翻转颜色
       inverse: false,
@@ -23,7 +23,7 @@ router.get('/captcha/:k', function(req, res, next) {
       // 高度
       height: 30,
   });
-  req.session.captcha = cap.text; // session 存储验证码数值
+  req.session.captcha = cap.text.toLowerCase(); // session 存储验证码数值
   console.log(req.session)
   res.type('svg'); // 响应的类型
   res.send(cap.data)

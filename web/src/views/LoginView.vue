@@ -42,7 +42,7 @@ const rules = reactive<FormRules>({
 })
 
 function refreshCaptcha() {
-  captchaURL.value = getAPI('/captcha?k='+new Date().getMilliseconds()+Math.floor(Math.random()*1E4))
+  captchaURL.value = getAPI(`/captcha?time=${Date.now()}${Math.random()*1E6}`)
 }
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
@@ -60,10 +60,9 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
     if(res.status == 200) {
       const user = useUserStore()
       const userData = res.data.usrList[0]
-      user.setUser({
-        userID: userData.user_account, 
-        userName: userData.user_name
-      })
+      user.$state.userID = userData.usr_account
+      user.$state.userName = userData.usr_name
+      console.log(user.$state.userID)
       ElMessage.success('登录成功')
       router.push('/evaluation')
     } else {
@@ -174,6 +173,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 .el-image {
   right: 25px;
   height: 40px;
+  cursor: pointer;
 }
 .form-item-wrapper {
   display: inline-flex;
