@@ -6,13 +6,13 @@ const UsrTbl = {
             ...params
         };
         const sqlStr = 'INSERT INTO user SET ?';
-        conn.query(sqlStr, project, (err, results) => {
+        conn.query(sqlStr, user, (err, results) => {
             if(err) return console.log(err.message);
             callback(results)                                                                                            
         })
     },
     delUsr: (params, callback) => {
-        const sqlStr = 'DELETE FROM user WHERE prj_id=?';
+        const sqlStr = 'DELETE FROM user WHERE usr_account = ?';
         conn.query(sqlStr, params.usr_account, (err, results) => {
             if(err) return console.log(err.message)
             callback(results)
@@ -21,21 +21,32 @@ const UsrTbl = {
     queryByPage: (params, callback) => {
         const pageSize = params.pageSize;
         const start = (params.pageNo-1)*pageSize;
-        const sqlStr = 'SELECT usr_account, usr_name, usr_auth, (SELECT COUNT(*) FROM user) AS total FROM user WHERE usr_auth > 0 LIMIT ?, ?';
-        conn.query(sqlStr, [start, pageSize], (err, results) => {
+        const user_account = params.usr_account;
+        const sqlStr = `
+            SELECT usr_account, usr_name, usr_tel, role_corp, role_name, user.role_id, (
+                SELECT COUNT(1)
+                FROM user
+                WHERE role_id >= (SELECT role_id FROM user WHERE usr_account = ?)
+            ) as total
+            FROM user
+                LEFT JOIN role ON role.role_id = user.role_id
+            WHERE user.role_id >= (SELECT role_id FROM user WHERE usr_account = ?)
+            LIMIT ?, ?;
+        `;
+        conn.query(sqlStr, [user_account, user_account, start, pageSize], (err, results) => {
             if(err) return console.log(err.message);
             callback(results, conn)
         });
     },
     queryByPwd: (params, callback) => {
-        const sqlStr = 'SELECT usr_account, usr_name, usr_auth FROM user WHERE usr_account=? and usr_pwd=?';
+        const sqlStr = 'SELECT usr_account, usr_name, role_id FROM user WHERE usr_account=? and usr_pwd=?';
         conn.query(sqlStr, [params.usr_account, params.usr_pwd], (err, results) => {
             if(err) return console.log(err.message)
             callback(results)
         })
     },
     queryByID: (params, callback) => {
-        const sqlStr = 'SELECT usr_account, usr_name, usr_auth FROM user WHERE usr_account=?';
+        const sqlStr = 'SELECT usr_account, usr_name FROM user WHERE usr_account=?';
         conn.query(sqlStr, params.usr_account, (err, results) => {
             if(err) return console.log(err.message)
             callback(results)

@@ -76,7 +76,7 @@ router.post('/add_prj', function(req, res, next) {
     prj_name: req.body.prjName,
     eval_method: req.body.evalMethod,
     prj_client: req.body.prjClient,
-    eval_time: moment().format("YYMMDDHHmmss"),
+    eval_time: moment().format("YYYY-MM-DD-HH:mm:ss"),
     eval_experts: req.body.evalExperts,
     eval_file: req.body.inputFile,
     rpt_file: outputFile
@@ -104,15 +104,23 @@ router.post('/del_prj', function(req, res, next) {
 */
 router.post('/query_prj', function(req, res, next) {
   // 1.取请求参数 2.用当前页号和单页数量去查询项目信息 3.返回查询结果
-  PrjTbl.queryByPage({
-    pageNo: req.body.pageNo,
-    pageSize: req.body.pageNum
-  }, (results, conn) => {
-    // conn.end();
-    res.send({
-      prjList: Object.values(results)
+  const account = req.body.userID;
+  if(req.session.token !== account) {
+    res.status(500).send({
+      msg: '请重新登录'
+    })
+  } else {
+    PrjTbl.queryByPage({
+      user_account: account,
+      pageNo: req.body.pageNo,
+      pageSize: req.body.pageNum
+    }, (results, conn) => {
+      // conn.end();
+      res.send({
+        prjList: Object.values(results)
+      });
     });
-  });
+  }
 });
 
 /*

@@ -5,8 +5,10 @@ import axios from 'axios';
 import { onMounted, reactive, ref, toRaw } from 'vue';
 import AddEvalModal from './components/AddEvalModal.vue'
 import DetailEvalModal from './components/DetailEvalModal.vue'
+import { useUserStore } from '@/stores/user';
 import { getAPI } from '@/common/utils/api';
 
+const user = useUserStore()
 const addModalVisible = ref(false)
 const detailModalVisible = ref(false)
 interface Project {
@@ -15,7 +17,9 @@ interface Project {
   evalMehod: string,
   prjClient: string,
   evalTime: string,
-  prjExperts: string,
+  expName: string,
+  expTel: string,
+  prjExperts: string, //expertName
   evalPath: string,
   rptPath: string
 }
@@ -25,6 +29,8 @@ let detailFormParams = reactive(<Project>{
   evalMehod: '',
   prjClient: '',
   evalTime: '',
+  expName: '',
+  expTel: '',
   prjExperts: '',
   evalPath: '',
   rptPath: ''
@@ -38,6 +44,7 @@ const evalMehodMap: any = {
 }
 
 onMounted(() => {
+  console.log('onMounted', pageNo.value)
   queryRefresh({
     pageNo: pageNo.value
   })
@@ -47,10 +54,12 @@ onMounted(() => {
   Query PRJ
 */
 function queryRefresh(params: any) {
+  console.log('queryRefresh', params)
   axios({
     method: 'post',
     url: getAPI('/ccep/query_prj'),
     data: {
+      userID: user.$state.userID,
       pageNo: params.pageNo,
       pageNum: 20
     }
@@ -64,8 +73,10 @@ function queryRefresh(params: any) {
           evalMehod: evalMehodMap[item.eval_method],
           prjClient: item.prj_client,
           evalTime: item.eval_time,
-          expert: item.eval_expert,
-          experts: item.eval_expert
+          expName: item.usr_name,
+          expID: item.usr_account,
+          expRole: item.role_id,
+          prjExperts: item.eval_experts
         })
       });
       tableData.value = dataList;
@@ -102,13 +113,14 @@ function openDetailModal(index: number, row: any) {
   }).then((res)=>{
     if(res.status == 200) {
       const prjData = res.data.prjList[0];
-      detailFormParams.prjID = prjData.prj_id,
-      detailFormParams.prjName = prjData.prj_name,
-      detailFormParams.evalMehod = prjData.eval_method,
-      detailFormParams.prjClient = prjData.prj_client,
-      detailFormParams.evalTime = prjData.eval_time,
+      detailFormParams.prjID = prjData.prj_id
+      detailFormParams.prjName = prjData.prj_name
+      detailFormParams.evalMehod = evalMehodMap[prjData.eval_method]
+      detailFormParams.prjClient = prjData.prj_client
+      detailFormParams.evalTime = prjData.eval_time
       // detailModalParams.expert = prjData.eval_experts,
-      detailFormParams.prjExperts = prjData.eval_expert
+      detailFormParams.expName = prjData.usr_name
+      detailFormParams.expTel = prjData.usr_tel
       detailFormParams.evalPath = prjData.eval_path
       detailFormParams.rptPath = prjData.rpt_path
       detailModalVisible.value = true
@@ -140,6 +152,7 @@ function handleDel(index: number, row: any) {
         message: '删除成功',
         type: 'success'
       })
+      console.log('handleDel', pageNo.value)
       queryRefresh({pageNo: 1})
     } else {
       ElMessage.error('删除失败')
@@ -150,10 +163,20 @@ function handleDel(index: number, row: any) {
 /*
   handle Pagination
 */
-const handleCurChange = (val: any) => {
+const handleCurChange = (val: number) => {
+  console.log('handleCurChange', val)
   queryRefresh({
     pageNo: val
   })
+}
+
+const isDeletable = (row: any) => {
+  const rowData = toRaw(row)
+  let deletable = false
+  if(user.$state.userAuth < rowData.expRole || user.$state.userID == rowData.expID) {
+    deletable = true
+  }
+  return deletable
 }
 
 /* mock */ 
@@ -180,12 +203,12 @@ const handleCurChange = (val: any) => {
         <!-- <template #header>
             <el-input size="small" placeholder="Type to search" />  
         </template> -->
-        <el-table-column v-if="false"  prop="prjID" label="id" min-width="320" />
+        <el-table-column v-if="true"  prop="prjID" label="id" min-width="320" />
         <el-table-column prop="prjName" label="项目名称" min-width="320" />
         <el-table-column prop="evalMehod" label="评估类型" min-width="110" />
         <el-table-column prop="prjClient" label="送评单位" min-width="320" />
         <el-table-column prop="evalTime" label="送评时间" min-width="120" />
-        <el-table-column prop="expert" label="主评人" min-width="110" />
+        <el-table-column prop="expName" label="主评人" min-width="110" />
         <!-- <el-table-column prop="experts" label="协评人" min-width="110" /> -->
         <el-table-column fixed="right" label="操作" min-width="100">
           <template #default="tableOption">

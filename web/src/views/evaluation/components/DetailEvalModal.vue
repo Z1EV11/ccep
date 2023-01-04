@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getAPI } from '@/common/utils/api';
 
 interface Project {
+[x: string]: any;
   prjID: string,
   prjName: string,
   evalMehod: string,
@@ -28,20 +29,10 @@ const ruleForm = reactive({
   evalMehod: '',
   prjClient: '',
   evalTime: '',
-  prjExperts: '',
+  expName: '',
   evalPath: '',
   rptPath: ''
 })
-const evalMethodOptions = [
-  {
-    value: 'NESMA_IND',
-    label: '功能点指示法',
-  },
-  {
-    value: 'NESMA_EVAL',
-    label: '功能点估算法',
-  }
-]
 
 /**
  * Close Modal
@@ -66,6 +57,11 @@ function getDownloadPath(type: string, filePath: string) {
   console.log(getAPI(api))
   return getAPI(api)
 
+}
+
+const getExpInfo = () => {
+  const expInfo = `${detailFormParams.expName}  ${detailFormParams.expTel}`
+  return expInfo
 }
 
 
@@ -114,8 +110,8 @@ const prjExpertsOptions = [
         <el-form-item label="评估方法" prop="detailModalParams.evalMehod" :label-width="100" >
             <el-input v-model="ruleForm.evalMehod" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.evalMehod"/>
         </el-form-item>
-        <el-form-item label="评估人" prop="prjExperts" :label-width="100" >
-            <el-input v-model="ruleForm.prjExperts" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjExperts"/>
+        <el-form-item label="评估人" prop="expName" :label-width="100" >
+            <el-input v-model="ruleForm.expName" autocomplete="off" clearable style="width: 480px" readonly disabled :value="getExpInfo()"/>
         </el-form-item>
         <el-form-item label="评估文件" prop="evalPath" :label-width="100" >
           <div class="flex justify-space-between mb-4 flex-wrap gap-4">

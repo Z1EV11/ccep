@@ -21,7 +21,7 @@ function isAuthenticated() {
             const userData = res.data.usrList[0]
             user.$state.userID = userData.usr_account
             user.$state.userName = userData.usr_name
-            console.log(user.$state.userID)
+            // console.log(user.$state.userID)
         }
     }).catch((error) => {
         user.$state.userID = ''
@@ -29,28 +29,6 @@ function isAuthenticated() {
         ElMessage.error(msg);
         router.push('/login')
     })
-}
-
-function queryUserInfo(user: Store<"user", _UnwrapAll<Pick<{ userID: Ref<string>; userName: Ref<string>; }, "userID" | "userName">>, Pick<{ userID: Ref<string>; userName: Ref<string>; }, never>, Pick<{ userID: Ref<string>; userName: Ref<string>; }, never>>) {
-    return axios({
-        method: 'post',
-        url: getAPI('/user/query_usr_info'),
-        data: {
-            account: user.$state.userID
-        }
-    }).then((res: { status: number; data: { usrList: any[], msg: string; }; }) => {
-        if(res.status == 200) {
-            const userData = res.data.usrList[0]
-            user.$state.userID = userData.usr_account
-            user.$state.userName = userData.usr_name
-            console.log(user.$state.userID)
-        }
-  }).catch((error) => {
-    user.$state.userID = ''
-    const msg = error.response.data.msg;
-    ElMessage.error(msg);
-    router.push('/login')
-  })
 }
 
 export {

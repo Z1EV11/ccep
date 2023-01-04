@@ -62,20 +62,13 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       const userData = res.data.usrList[0]
       user.$state.userID = userData.usr_account
       user.$state.userName = userData.usr_name
-      console.log(user.$state.userID)
+      user.$state.userAuth = userData.role_id
       ElMessage.success('登录成功')
       router.push('/evaluation')
-    } else {
-      ElMessage.error('登录失败')
     }
+  }).catch((err) => {
+    ElMessage.error(err.response.data.msg)
   })
-  // await formEl.validate((valid, fields) => {
-  //   if (valid) {
-  //     console.log('submit!')
-  //   } else {
-  //     console.log('error submit!', fields)
-  //   }
-  // })
 }
 </script>
 

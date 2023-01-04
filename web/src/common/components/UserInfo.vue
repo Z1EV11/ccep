@@ -1,9 +1,14 @@
 <script lang="ts" setup>
-import { useUserStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
 import { User, ArrowDown } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import axios from 'axios';
+import { useUserStore } from '@/stores/user';
+import { getAPI } from '@/common/utils/api';
 
 
 const user = useUserStore()
+const router = useRouter()
 const squareUrl = '@/assets/avatar.png'
 
 const handleCommand = (command: string | number | object) => {
@@ -22,7 +27,24 @@ function handleChangePwd() {
 } 
 
 function handleLogout() {
-
+    const url = getAPI('/user/logout')
+    axios({
+        method: 'post',
+        url,
+        data: {
+            account: user.$state.userID
+        }
+    }).then((res) => {
+        if(res.status == 200) {
+            user.$state.userID = ''
+            user.$state.userAuth = ''
+            user.$state.userName = ''
+            ElMessage.success(res.data.msg)
+            router.push('/login')
+        }
+    }).catch((error) => {
+        ElMessage.error(error.response.data.msg)
+    });
 }
 </script>
 

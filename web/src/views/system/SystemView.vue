@@ -3,29 +3,33 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import axios from 'axios';
 import { onMounted, reactive, ref, toRaw } from 'vue';
-import AddEvalModal from './components/AddEvalModal.vue'
-import DetailEvalModal from './components/DetailEvalModal.vue'
+import { useUserStore } from '@/stores/user';
+import AddUsrModal from './components/AddUserModal.vue'
+import DetailEvalModal from './components/EditlUserModal.vue'
 import { getAPI } from '@/common/utils/api';
 
+const user = useUserStore()
 const addModalVisible = ref(false)
 const detailModalVisible = ref(false)
 interface User {
   usrAccount: string,
+  usrPwd: string,
   usrName: string,
-  usrAuth: string
+  usrRole: string,
+  usrTel: string,
+  usrCorp: string
 }
 let detailFormParams = reactive(<User>{
   usrAccount: '',
+  usrPwd: '',
   usrName: '',
-  usrAuth: ''
+  usrRole: '',
+  usrTel: '',
+  usrCorp: ''
 })
 let tableData = ref(<Array<User>>[])
 const pageNo = ref(1)
 const pageTotal = ref(0)
-const evalMehodMap: any = {
-  NESMA_IND: '功能点指示法',
-  NESMA_EVAL: '功能点估算法'
-}
 
 onMounted(() => {
   queryRefresh({
@@ -34,13 +38,14 @@ onMounted(() => {
 });
 
 /*
-  Query PRJ
+  Query User
 */
 function queryRefresh(params: any) {
   axios({
     method: 'post',
     url: getAPI('/user/query_usr'),
     data: {
+      id: user.$state.userID,
       pageNo: params.pageNo,
       pageNum: 20
     }
@@ -51,7 +56,10 @@ function queryRefresh(params: any) {
         dataList.push({
           usrAccount: item.usr_account,
           usrName: item.usr_name,
-          usrAuth: item.usr_auth
+          roleName: item.role_name,
+          usrTel: item.usr_tel,
+          usrCorp: item.role_corp,
+          usrRole: item.role_id
         })
       });
       tableData.value = dataList;
@@ -66,18 +74,21 @@ function queryRefresh(params: any) {
 /*
   Add PRJ
 */
-const openAddModal = () => {
+const openAddUserModal = () => {
   addModalVisible.value = true
 }
 
-const closeAddModal = () => {
+const closeAddUserModal = (isAdded: boolean) => {
   addModalVisible.value = false
+  queryRefresh({
+    pageNo: pageNo.value
+  })
 }
 
 /*
   Details PRJ
 */
-function openDetailModal(index: number, row: any) {
+function openEditUserModal(row: any) {
   const rowData = toRaw(row)
   axios({
     method: 'post',
@@ -104,7 +115,7 @@ function openDetailModal(index: number, row: any) {
   });
 }
 
-const closeDetailModal = () => {
+const closeEditUserModal = () => {
   detailModalVisible.value = false
   console.log('closeDetailModal')
 }
@@ -112,25 +123,32 @@ const closeDetailModal = () => {
 /*
   Del PRJ
 */
-function handleDel(index: number, row: any) {
+function handleDel(row: any) {
   const rowData = toRaw(row)
   axios({
     method: 'post',
-    url: getAPI('/ccep/del_prj'),
+    url: getAPI('/user/del_usr'),
     data: {
-      prjID: rowData.prjID
+      tk: user.$state.userID,
+      usrAccount: rowData.usrAccount
     }
   }).then((res)=>{
     if(res.status == 200) {
-      ElMessage({
-        message: '删除成功',
-        type: 'success'
-      })
+      ElMessage.success(res.data.msg)
       queryRefresh({pageNo: 1})
-    } else {
-      ElMessage.error('删除失败')
     }
+  }).catch((err) => {
+    ElMessage.error('删除用户失败')
   });
+}
+
+const isEditable = (row: any) => {
+  const rowData = toRaw(row)
+  let editable = false
+  if(user.$state.userAuth < rowData.usrRole || user.$state.userID == rowData.usrAccount) {
+    editable = true
+  }
+  return editable
 }
 
 /*
@@ -159,20 +177,26 @@ const handleCurChange = (val: any) => {
   <div class="table-wrapper">
     <div class="table-option-title"><span>用户列表</span></div>
     <div class="table-option-wrapper">
-        <el-button type="primary" :icon="Plus" @click="openAddModal">添加用户</el-button>
+        <el-button type="primary" :icon="Plus" @click="openAddUserModal">添加用户</el-button>
     </div>
     <div class="table-body-wrapper">
       <el-table :data="tableData" table-layout="auto" stripe  style="width: 100%; height: 840px; font-size: 16px;">
         <!-- <template #header>
             <el-input size="small" placeholder="Type to search" />  
         </template> -->
-        <el-table-column prop="usrAccount" label="账号" min-width="320" />
-        <el-table-column prop="usrName" label="用户名" min-width="320" />
-        <el-table-column prop="usrAuth" label="角色" min-width="110" />
-        <el-table-column fixed="right" label="操作" min-width="100">
+        <el-table-column prop="usrName" label="姓名" min-width="220" />
+        <el-table-column prop="usrTel" label="联系电话" min-width="220" />
+        <el-table-column prop="usrCorp" label="所属单位" min-width="320" />
+        <el-table-column v-if="true" prop="usrAccount" label="账号" min-width="110" />
+        <el-table-column v-if="false" prop="usrRole" label="" min-width="110" />
+        <el-table-column prop="roleName" label="角色" min-width="110" />
+        <el-table-column fixed="right" label="操作" min-width="120">
           <template #default="tableOption">
-            <el-button link type="primary" size="small" @click="openDetailModal(tableOption.$index, tableOption.row)">详情</el-button>
-            <el-button link type="primary" size="small" @click="handleDel(tableOption.$index, tableOption.row)">删除</el-button>
+            <div v-if="isEditable(tableOption.row)">
+              <el-button link type="primary" size="small" @click="openEditUserModal(tableOption.row)">编辑</el-button>
+              <el-button link type="primary" size="small" @click="openEditUserModal(tableOption.row)">修改密码</el-button>
+              <el-button link type="primary" size="small" @click="handleDel(tableOption.row)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -186,12 +210,13 @@ const handleCurChange = (val: any) => {
       />
     </div>
   </div>
-  <AddEvalModal class="eval-add-modal" :add-modal-visible="addModalVisible" @close-add-modal="closeAddModal" />
-  <DetailEvalModal class="eval-add-modal"
+  <AddUsrModal class="usr-add-modal" :add-modal-visible="addModalVisible" @close-add-modal="closeAddUserModal" />
+  
+  <!-- <DetailEvalModal class="eval-add-modal"
     :detail-modal-visible="detailModalVisible"
     :detail-form-params="detailFormParams"
-    @close-detail-modal="closeDetailModal"
-  />
+    @close-detail-modal="closeEditUserModal"
+  /> -->
 </template>
   
 <style scoped>

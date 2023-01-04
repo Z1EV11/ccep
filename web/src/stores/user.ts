@@ -6,16 +6,15 @@ export const useUserStore = defineStore(
   () => {
     const userID = ref('')
     const userName = ref('')
+    const userAuth = ref('')
 
-    function setUser(user: { userID: string; userName: string }) {
+    function setUser(user: { userID: string; userName: string, userAuth: string }) {
       userID.value = user.userID
       userName.value = user.userName
-    }
-    function getUser() {
-      return { userID, userName }
+      userAuth.value = user.userAuth
     }
 
-    return { userID, userName }
+    return { userID, userName, userAuth }
   }, 
   {
     persist: {
