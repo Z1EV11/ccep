@@ -93,21 +93,29 @@ router.post('/query_usr', function(req, res, next) {
 
 router.post('/add_usr', function(req, res, next) {
   const account = req.body.tk;
+  let usrAccount = req.body.usrAccount;
+  let usrPwd = req.body.usrPwd;
+  let usrName = req.body.usrName;
+  let usrRole = req.body.usrRole;
+  let usrTel = req.body.usrTel;
   if(req.session.token !== account) {
+    res.status(500).send({
+      msg: '违规请求'
+    })
+  } else if(usrAccount && usrPwd && usrName && usrRole && usrTel) {
     res.status(500).send({
       msg: '违规请求'
     })
   } else {
     UsrTbl.addUsr({
-      usr_account: req.body.usrAccount,
-      usr_pwd: req.body.usrPwd,
-      usr_name: req.body.usrName,
-      role_id: req.body.usrRole,
-      usr_tel: req.body.usrTel
+      usr_account: usrAccount,
+      usr_pwd: usrPwd,
+      usr_name: usrName,
+      role_id: usrRole,
+      usr_tel: usrTel
     }, (results, conn) => {
       // conn.end();
       res.send({
-        usrList: Object.values(results),
         msg: '用户添加成功'
       });
     });

@@ -80,7 +80,7 @@ function queryRefresh(params: any) {
         })
       });
       tableData.value = dataList;
-      pageTotal.value = res.data.prjList[0].total;
+      pageTotal.value = res.data.prjList[0] && res.data.prjList[0].total;
       // ElMessage.success('查询成功')
     } else {
       ElMessage.error('查询失败')

@@ -29,40 +29,68 @@ const rules = reactive<FormRules>({
       message: '请输入账号',
       trigger: 'blur'
     },
+    {
+      min: 3,
+      message: '账号至少满足3位',
+      trigger: 'blur'
+    }
   ],
   usrPwd: [
     {
       required: true,
       message: '请输入8-12位密码',
-      trigger: 'change',
+      trigger: 'blur',
+    },
+    {
+      min: 8,
+      max: 12,
+      message: '请输入8-12位密码',
+      trigger: 'blur',
     },
   ],
   usrPwd1: [
     {
       required: true,
-      message: '请再次输入密码进行确认',
-      trigger: 'change',
+      message: '请输入8-12位密码确认',
+      trigger: 'blur',
+    },
+    {
+      min: 8,
+      max: 12,
+      message: '请输入8-12位密码确认',
+      trigger: 'blur',
     },
   ],
   usrName: [
     {
       required: true,
       message: '请输入姓名',
-      trigger: 'change',
+      trigger: 'blur',
     },
+    {
+      min: 2,
+      message: '姓名至少2位',
+      trigger: 'change',
+    }
   ],
   usrTel: [
     {
       required: true,
       message: '请输入联系方式',
-      trigger: 'change',
+      trigger: 'blur',
     },
+    {
+      min: 11,
+      max: 11,
+      message: '请输入11位手机号',
+      trigger: 'chagne',
+    }
   ],
   usrCorp: [
     {
       required: true,
       message: '请输入所属单位',
-      trigger: 'change',
+      trigger: 'blur',
     },
   ],
   usrRole: [
@@ -93,6 +121,20 @@ const roleOptions = [
 /**
  * ADD User
  */
+ const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate((valid: any) => {
+    if (valid) {
+      // console.log('submit!')
+      addUser()
+    } else {
+      // console.log('error submit!')
+      ElMessage.error('请按提示输入信息')
+      return false
+    }
+  })
+}
+
 function addUser() {
   axios({
     method: 'post',
@@ -139,7 +181,7 @@ function addUser() {
           <el-input v-model="ruleForm.usrName" autocomplete="off" clearable style="width: 480px" />
         </el-form-item>
         <el-form-item label="联系方式" prop="usrTel" :label-width="100">
-          <el-input v-model="ruleForm.usrTel" autocomplete="off" clearable minlength="11" maxlength="11" style="width: 480px" />
+          <el-input v-model="ruleForm.usrTel" autocomplete="off" clearable maxlength="11" show-word-limit style="width: 480px" />
         </el-form-item>
         <el-form-item label="权限" prop="usrRole" :label-width="100" >
           <el-select
@@ -158,7 +200,7 @@ function addUser() {
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="closeModal(ruleFormRef)">取消</el-button>
-          <el-button type="primary" @click="addUser">确定</el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)">确定</el-button>
         </span>
       </template>
   </el-dialog>
