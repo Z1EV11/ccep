@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { reactive, ref, toRefs } from 'vue'
-import { ElMessage, type FormInstance } from 'element-plus'
-import { toFinite } from 'lodash-es';
-import axios from 'axios';
+import { reactive, ref } from 'vue'
+import type { FormInstance } from 'element-plus'
 import { getAPI } from '@/common/utils/api';
 
 interface Project {
@@ -63,31 +61,6 @@ const getExpInfo = () => {
   const expInfo = `${detailFormParams.expName}  ${detailFormParams.expTel}`
   return expInfo
 }
-
-
-// mock
-const prjExpertsOptions = [
-  {
-    value: 'Option1',
-    label: 'Option1',
-  },
-  {
-    value: 'Option2',
-    label: 'Option2',
-  },
-  {
-    value: 'Option3',
-    label: 'Option3',
-  },
-  {
-    value: 'Option4',
-    label: 'Option4',
-  },
-  {
-    value: 'Option5',
-    label: 'Option5',
-  }
-]
 </script>
 
 <template>
@@ -99,19 +72,19 @@ const prjExpertsOptions = [
       >
       <el-form :model="ruleForm" ref="ruleFormRef">
         <el-form-item label="项目编号" prop="detailModalParams.prjID" :label-width="100">
-          <el-input v-model="ruleForm.prjID" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjID"/>
+          <el-input v-model="ruleForm.prjID" autocomplete="off" clearable style="width: 480px" readonly :value="detailFormParams.prjID"/>
         </el-form-item>
         <el-form-item label="项目名称" prop="detailModalParams.prjName" :label-width="100">
-          <el-input v-model="ruleForm.prjName" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjName"/>
+          <el-input v-model="ruleForm.prjName" autocomplete="off" clearable style="width: 480px" readonly :value="detailFormParams.prjName"/>
         </el-form-item>
         <el-form-item label="委托方" prop="detailModalParams.prjClient" :label-width="100">
-          <el-input v-model="ruleForm.prjClient" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjClient"/>
+          <el-input v-model="ruleForm.prjClient" autocomplete="off" clearable style="width: 480px" readonly :value="detailFormParams.prjClient"/>
         </el-form-item>
         <el-form-item label="评估方法" prop="detailModalParams.evalMehod" :label-width="100" >
-            <el-input v-model="ruleForm.evalMehod" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.evalMehod"/>
+            <el-input v-model="ruleForm.evalMehod" autocomplete="off" clearable style="width: 480px" readonly :value="detailFormParams.evalMehod"/>
         </el-form-item>
         <el-form-item label="评估人" prop="expName" :label-width="100" >
-            <el-input v-model="ruleForm.expName" autocomplete="off" clearable style="width: 480px" readonly disabled :value="getExpInfo()"/>
+            <el-input v-model="ruleForm.expName" autocomplete="off" clearable style="width: 480px" readonly :value="getExpInfo()"/>
         </el-form-item>
         <el-form-item label="评估文件" prop="evalPath" :label-width="100" >
           <div class="flex justify-space-between mb-4 flex-wrap gap-4">

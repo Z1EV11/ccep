@@ -1,138 +1,195 @@
 <script setup lang="ts">
 import { reactive, ref, toRefs } from 'vue'
-import { ElMessage, type FormInstance } from 'element-plus'
-import { toFinite } from 'lodash-es';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import axios from 'axios';
 import { getAPI } from '@/common/utils/api';
+import { useUserStore } from '@/stores/user';
 
-interface Project {
-  prjID: string,
-  prjName: string,
-  evalMehod: string,
-  prjClient: string,
-  evalTime: string,
-  prjExperts: string,
-  evalPath: string,
-  rptPath: string
+const user = useUserStore()
+interface User {
+  usrAccount: string,
+  usrPwd: string,
+  usrName: string,
+  usrRole: number,
+  usrTel: string,
+  usrCorp: string
 }
-const {detailModalVisible, detailFormParams } = defineProps<{
-  detailModalVisible: Boolean,
-  detailFormParams: Project
+const {editModalVisible, editFormParams } = defineProps<{
+  editModalVisible: Boolean,
+  editFormParams: User
 }>()
 // const detailModalVisible = toRefs(props.detailModalVisible)
-const emits = defineEmits(['close-detail-modal'])
+const emits = defineEmits(['close-edit-modal'])
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({
-  prjID: '',
-  prjName: '',
-  evalMehod: '',
-  prjClient: '',
-  evalTime: '',
-  prjExperts: '',
-  evalPath: '',
-  rptPath: ''
+  usrAccount: '',
+  usrName: '',
+  usrRole: 2,
+  usrTel: '',
+  usrCorp: ''
 })
-const evalMethodOptions = [
+const rules = reactive<FormRules>({
+  usrAccount: [
+    {
+      required: true,
+      message: '请输入账号',
+      trigger: 'blur'
+    },
+    {
+      min: 3,
+      message: '账号至少满足3位',
+      trigger: 'blur'
+    }
+  ],
+  usrName: [
+    {
+      required: true,
+      message: '请输入姓名',
+      trigger: 'blur',
+    },
+    {
+      min: 2,
+      message: '姓名至少2位',
+      trigger: 'change',
+    }
+  ],
+  usrRole: [
+    {
+      required: true,
+      message: '请选择用户权限',
+      trigger: 'blur',
+    },
+  ],
+  usrTel: [
+    {
+      required: true,
+      message: '请输入联系方式',
+      trigger: 'blur',
+    },
+    {
+      min: 11,
+      max: 11,
+      message: '请输入11位手机号',
+      trigger: 'chagne',
+    }
+  ],
+  usrCorp: [
+    {
+      required: true,
+      message: '请输入所属单位',
+      trigger: 'blur',
+    },
+  ]
+})
+const roleOptions = [
   {
-    value: 'NESMA_IND',
-    label: '功能点指示法',
+    value: 1,
+    label: '管理员',
   },
   {
-    value: 'NESMA_EVAL',
-    label: '功能点估算法',
+    value: 2,
+    label: '普通用户',
   }
 ]
+
+function openModal(formEl: FormInstance | undefined) {
+  ruleForm.usrAccount = editFormParams.usrAccount
+  ruleForm.usrName = editFormParams.usrName
+  ruleForm.usrRole = editFormParams.usrRole
+  ruleForm.usrTel = editFormParams.usrTel
+  ruleForm.usrCorp = editFormParams.usrCorp
+}
 
 /**
  * Close Modal
  */
  function closeModal(formEl: FormInstance | undefined) {
     formEl!.resetFields()
-    emits("close-detail-modal")
+    emits("close-edit-modal")
 }
 
-/*
-  Download eval file
-*/
-function getDownloadPath(type: string, filePath: string) {
-  var api = ''
-  if (type === 'eval_upload') {
-    api = `/ccep/get_eval_upload?fileName=${filePath}`
-    // return getAPI(api)
-  } else if (type === 'eval_rpt') {
-    api = `/ccep/get_eval_rpt?fileName=${filePath}`
-    // return getAPI(api)
-  }
-  console.log(getAPI(api))
-  return getAPI(api)
-
+/**
+ * Update USR
+ */
+ const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate((valid: any) => {
+    if (valid) {
+      // console.log('submit!')
+      updateUser()
+    } else {
+      // console.log('error submit!')
+      ElMessage.error('请按提示输入信息')
+      return false
+    }
+  })
 }
 
+function updateUser() {
+  axios({
+    method: 'post',
+    url: getAPI('/user/edit_usr'),
+    data: {
+      tk: user.$state.userID,
+      usrAccount: ruleForm.usrAccount,
+      usrName: ruleForm.usrName,
+      usrRole: ruleForm.usrRole,
+      usrTel: ruleForm.usrTel
+      // usrCorp: ruleForm.usrCorp
+    }
+  }).then((res)=>{
+    emits("close-edit-modal", true)
+    if(res.status == 200) {
+      ElMessage.success(res.data.msg)
+    }
+  }).catch((err) => {
+    emits("close-edit-modal", false)
+    ElMessage.error('编辑用户失败')
+  })
+}
 
-// mock
-const prjExpertsOptions = [
-  {
-    value: 'Option1',
-    label: 'Option1',
-  },
-  {
-    value: 'Option2',
-    label: 'Option2',
-  },
-  {
-    value: 'Option3',
-    label: 'Option3',
-  },
-  {
-    value: 'Option4',
-    label: 'Option4',
-  },
-  {
-    value: 'Option5',
-    label: 'Option5',
-  }
-]
 </script>
 
 <template>
     <el-dialog
-      :model-value="detailModalVisible"
+      :model-value="editModalVisible"
       title="项目详情"
+      @open="openModal(ruleFormRef)"
       @close="closeModal(ruleFormRef)"
       :width="650"
       >
-      <el-form :model="ruleForm" ref="ruleFormRef">
-        <el-form-item label="项目编号" prop="detailModalParams.prjID" :label-width="100">
-          <el-input v-model="ruleForm.prjID" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjID"/>
+      <el-form :model="ruleForm" :rules="rules" ref="ruleFormRef">
+        <el-form-item label="账号" prop="usrAccount" :label-width="100">
+          <el-input v-model="ruleForm.usrAccount" autocomplete="off" clearable style="width: 480px" readonly />
         </el-form-item>
-        <el-form-item label="项目名称" prop="detailModalParams.prjName" :label-width="100">
-          <el-input v-model="ruleForm.prjName" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjName"/>
+        <el-form-item label="姓名" prop="usrName" :label-width="100">
+          <el-input v-model="ruleForm.usrName" autocomplete="off" clearable style="width: 480px"/>
         </el-form-item>
-        <el-form-item label="委托方" prop="detailModalParams.prjClient" :label-width="100">
-          <el-input v-model="ruleForm.prjClient" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjClient"/>
+        <el-form-item label="联系方式" prop="usrTel" :label-width="100">
+          <el-input v-model="ruleForm.usrTel" autocomplete="off" maxlength="11" show-word-limit clearable style="width: 480px" />
         </el-form-item>
-        <el-form-item label="评估方法" prop="detailModalParams.evalMehod" :label-width="100" >
-            <el-input v-model="ruleForm.evalMehod" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.evalMehod"/>
+        <el-form-item label="所属单位" prop="usrCorp" :label-width="100" >
+            <el-input v-model="ruleForm.usrCorp" autocomplete="off" clearable style="width: 480px" readonly />
         </el-form-item>
-        <el-form-item label="评估人" prop="prjExperts" :label-width="100" >
-            <el-input v-model="ruleForm.prjExperts" autocomplete="off" clearable style="width: 480px" readonly disabled :value="detailFormParams.prjExperts"/>
-        </el-form-item>
-        <el-form-item label="评估文件" prop="evalPath" :label-width="100" >
-          <div class="flex justify-space-between mb-4 flex-wrap gap-4">
-            <el-link :href="getDownloadPath('eval_upload', detailFormParams.evalPath)" :underline="false" type="primary">{{ detailFormParams.evalPath }}</el-link>
-          </div>
-        </el-form-item>
-        <el-form-item label="评估报告" prop="rptPath" :label-width="100" >
-          <div class="flex justify-space-between mb-4 flex-wrap gap-4">
-            <el-link :href="getDownloadPath('eval_rpt', detailFormParams.rptPath)" :underline="false" type="primary">{{ detailFormParams.rptPath }}</el-link>
-          </div>
+        <el-form-item label="权限" prop="usrRole" :label-width="100" >
+          <el-select
+            v-model="ruleForm.usrRole"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in roleOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
-      <!-- <template #footer>
+      <template #footer>
         <span class="dialog-footer">
           <el-button @click="closeModal(ruleFormRef)">取消</el-button>
-          <el-button type="primary" @click="closeModal(ruleFormRef)">确定</el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)">确定</el-button>
         </span>
-      </template> -->
+      </template>
   </el-dialog>
   </template>

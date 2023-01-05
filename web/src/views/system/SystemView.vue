@@ -5,27 +5,31 @@ import axios from 'axios';
 import { onMounted, reactive, ref, toRaw } from 'vue';
 import { useUserStore } from '@/stores/user';
 import AddUsrModal from './components/AddUserModal.vue'
-import DetailEvalModal from './components/EditlUserModal.vue'
+import ChangePwdModal from '@/common/components/changePwdModal.vue';
+import EditlUserModal from './components/EditlUserModal.vue'
 import { getAPI } from '@/common/utils/api';
 
 const user = useUserStore()
 const addModalVisible = ref(false)
-const detailModalVisible = ref(false)
+const editModalVisible = ref(false)
+const pwdModalVisible = ref(false)
 interface User {
   usrAccount: string,
   usrPwd: string,
   usrName: string,
-  usrRole: string,
+  usrRole: number,
   usrTel: string,
   usrCorp: string
 }
-let detailFormParams = reactive(<User>{
+let editFormParams = reactive(<User>{
   usrAccount: '',
-  usrPwd: '',
   usrName: '',
-  usrRole: '',
+  usrRole: 2,
   usrTel: '',
   usrCorp: ''
+})
+let changePwdParams = reactive(<User>{
+  usrAccount: ''
 })
 let tableData = ref(<Array<User>>[])
 const pageNo = ref(1)
@@ -63,7 +67,7 @@ function queryRefresh(params: any) {
         })
       });
       tableData.value = dataList;
-      pageTotal.value = res.data.usrList[0].total;
+      pageTotal.value = res.data.usrList[0] && res.data.usrList[0].total;
       // ElMessage.success('查询成功')
     } else {
       ElMessage.error('查询失败')
@@ -86,40 +90,37 @@ const closeAddUserModal = (isAdded: boolean) => {
 }
 
 /*
-  Details PRJ
+  Edit USR
 */
 function openEditUserModal(row: any) {
   const rowData = toRaw(row)
-  axios({
-    method: 'post',
-    url: getAPI('/ccep/detail_prj'),
-    data: {
-      prjID: rowData.prjID
-    }
-  }).then((res) => {
-    if(res.status == 200) {
-      const usrData = res.data.usrList[0];
-      detailFormParams.prjID = usrData.prj_id,
-      detailFormParams.prjName = usrData.prj_name,
-      detailFormParams.evalMehod = usrData.eval_method,
-      detailFormParams.prjClient = usrData.prj_client,
-      detailFormParams.evalTime = usrData.eval_time,
-      // detailModalParams.expert = prjData.eval_experts,
-      detailFormParams.prjExperts = usrData.eval_experts
-      detailFormParams.evalPath = usrData.eval_path
-      detailFormParams.rptPath = usrData.rpt_path
-      detailModalVisible.value = true
-    } else {
-      ElMessage.error('查询详情失败')
-    }
-  });
+  editFormParams.usrAccount = rowData.usrAccount
+  editFormParams.usrName = rowData.usrName
+  editFormParams.usrTel = rowData.usrTel
+  editFormParams.usrCorp = rowData.usrCorp
+  editFormParams.usrRole = rowData.usrRole
+  editModalVisible.value = true
 }
 
 const closeEditUserModal = () => {
-  detailModalVisible.value = false
-  console.log('closeDetailModal')
+  editModalVisible.value = false
+  queryRefresh({pageNo: pageNo.value})
+  // console.log('closeDetailModal')
 }
 
+/**
+ * Change PWD
+*/
+function openChangePwdModal(row: any) {
+  const rowData = toRaw(row)
+  changePwdParams.usrAccount = rowData.usrAccount;
+  // console.log('openChangePwdModal', changePwdParams.usrAccount)
+  pwdModalVisible.value =true
+}
+
+function closeChangePwdModal() {
+  pwdModalVisible.value =false
+}
 /*
   Del PRJ
 */
@@ -134,7 +135,7 @@ function handleDel(row: any) {
     }
   }).then((res)=>{
     if(res.status == 200) {
-      ElMessage.success(res.data.msg)
+      // ElMessage.success(res.data.msg)
       queryRefresh({pageNo: 1})
     }
   }).catch((err) => {
@@ -159,18 +160,6 @@ const handleCurChange = (val: any) => {
     pageNo: val
   })
 }
-
-/* mock */ 
-// tableData = [
-//   {
-//     name: '重庆信息通信咨询设计院有限公司',
-//     type: '估算功能点',
-//     client: '重庆信息通信咨询设计院有限公司',
-//     time: '2016-05-03',
-//     expert: '董立陶',
-//     experts: '董立陶'
-//   },
-// ]
 </script>
 
 <template>
@@ -194,7 +183,7 @@ const handleCurChange = (val: any) => {
           <template #default="tableOption">
             <div v-if="isEditable(tableOption.row)">
               <el-button link type="primary" size="small" @click="openEditUserModal(tableOption.row)">编辑</el-button>
-              <el-button link type="primary" size="small" @click="openEditUserModal(tableOption.row)">修改密码</el-button>
+              <el-button link type="primary" size="small" @click="openChangePwdModal(tableOption.row)">修改密码</el-button>
               <el-button link type="primary" size="small" @click="handleDel(tableOption.row)">删除</el-button>
             </div>
           </template>
@@ -211,12 +200,12 @@ const handleCurChange = (val: any) => {
     </div>
   </div>
   <AddUsrModal class="usr-add-modal" :add-modal-visible="addModalVisible" @close-add-modal="closeAddUserModal" />
-  
-  <!-- <DetailEvalModal class="eval-add-modal"
-    :detail-modal-visible="detailModalVisible"
-    :detail-form-params="detailFormParams"
-    @close-detail-modal="closeEditUserModal"
-  /> -->
+  <ChangePwdModal :pwd-modal-visible="pwdModalVisible" :change-pwd-params="changePwdParams" @close-pwd-modal="closeChangePwdModal" />
+  <EditlUserModal class="eval-add-modal"
+    :edit-modal-visible="editModalVisible"
+    :edit-form-params="editFormParams"
+    @close-edit-modal="closeEditUserModal"
+  />
 </template>
   
 <style scoped>

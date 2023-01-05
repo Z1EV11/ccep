@@ -70,13 +70,33 @@ router.post('/query_usr_info', function(req, res, next) {
   }
 });
 
+router.post('/change_pwd', function(req, res, next) {
+  if (req.session.token !== req.body.tk) {
+    res.status(500).send({
+      msg: '请重新登录'
+    })
+  } else {
+    UsrTbl.updatePwd({
+      usr_account: req.body.usrAccount,
+      pwd0: req.body.usrPwd0,
+      pwd: req.body.usrPwd
+    }, (results, conn) => {
+      // conn.end();
+      res.send({
+        usrList: Object.values(results),
+        msg: '密码修改成功'
+      });
+    });
+  }
+});
+
 router.post('/query_usr', function(req, res, next) {
   const account = req.body.id;
   if(req.session.token !== account) {
     res.status(500).send({
       msg: '请重新登录'
     })
-  } else {
+  } else {            
     UsrTbl.queryByPage({
       usr_account: account,
       pageNo: req.body.pageNo,
@@ -136,6 +156,28 @@ router.post('/del_usr', function(req, res, next) {
       res.send({
         usrList: Object.values(results),
         msg: '用户删除成功'
+      });
+    });
+  }
+});
+
+router.post('/edit_usr', function(req, res, next) {
+  if (req.session.token !== req.body.tk) {
+    res.status(500).send({
+      msg: '请重新登录'
+    })
+  } else {
+    UsrTbl.updateUsr({
+      usr_account: req.body.usrAccount,
+      usr_name: req.body.usrName,
+      role_id: req.body.usrRole,
+      usr_tel: req.body.usrTel
+      // usr: ruleForm.usrCorp
+    }, (results, conn) => {
+      // conn.end();
+      res.send({
+        usrList: Object.values(results),
+        msg: '用户信息修改成功'
       });
     });
   }

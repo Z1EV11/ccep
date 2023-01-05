@@ -7,11 +7,20 @@ import { useUserStore } from '@/stores/user';
 import { getAPI } from '@/common/utils/api';
 
 const user = useUserStore()
-const props = defineProps({
-  addModalVisible: Boolean
-})
-const { addModalVisible } =toRefs(props)
-const emits = defineEmits(['close-add-modal'])
+interface User {
+  usrAccount: string,
+  usrPwd: string,
+  usrName: string,
+  usrRole: number,
+  usrTel: string,
+  usrCorp: string
+}
+const { pwdModalVisible, changePwdParams } = defineProps<{
+  pwdModalVisible: Boolean,
+  changePwdParams: User
+}>()
+// const { pwdModalVisible } =toRefs(props)
+const emits = defineEmits(['close-pwd-modal'])
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({
   usrAccount: '',
@@ -19,27 +28,71 @@ const ruleForm = reactive({
   usrPwd: '',
   usrPwd1: '',
 })
+const checkPwd = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    return callback(new Error('请在此输入新密码确认'))
+  } else if(value === ruleForm.usrPwd0) {
+    return callback(new Error('请确保新密码与旧密码不同'))
+  } else {
+    callback()
+  }
+ }
+const checkPwd1 = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    return callback(new Error('请在此输入新密码确认'))
+  } else if(value === ruleForm.usrPwd) {
+    return callback()
+  } else {
+    callback(new Error('请确认两次密码是否输入一致'))
+  }
+ }
 const rules = reactive<FormRules>({
     usrPwd0: [
-        {
+      {
         required: true,
         message: '请输入旧密码',
-        trigger: 'change',
-        },
+        trigger: 'blur',
+      },
+      {
+        min: 8,
+        max: 12,
+        message: '请输入8-12位旧密码',
+        trigger: 'blur',
+      },
     ],
   usrPwd: [
     {
       required: true,
-      message: '请输入8-12位密码',
-      trigger: 'change',
+      message: '请输入8-12位新密码',
+      trigger: 'blur',
     },
+    {
+      min: 8,
+      max: 12,
+      message: '请输入8-12位新密码',
+      trigger: 'blur',
+    },
+    {
+      validator: checkPwd,
+      trigger: 'blur',
+    }
   ],
   usrPwd1: [
     {
       required: true,
-      message: '请再次输入密码确认',
-      trigger: 'change',
+      message: '请再次输入新密码确认',
+      trigger: 'blur',
     },
+    {
+      min: 8,
+      max: 12,
+      message: '请再次输入新密码确认',
+      trigger: 'blur',
+    },
+    {
+      validator: checkPwd1,
+      trigger: 'blur',
+    }
   ]
 })
 
@@ -48,43 +101,63 @@ const rules = reactive<FormRules>({
  */
  function closeModal(formEl: FormInstance | undefined) {
   formEl!.resetFields()
-  emits("close-add-modal")
+  emits("close-pwd-modal")
 }
 
 /**
- * ADD User
+ * Change PWD
  */
-function addUser() {
+ const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate((valid: any) => {
+    if (valid) {
+      // console.log('submit!')
+      changePwd()
+    } else {
+      // console.log('error submit!')
+      ElMessage.error('请按提示输入信息')
+      return false
+    }
+  })
+}
+
+function changePwd() {
   axios({
     method: 'post',
     url: getAPI('/user/change_pwd'),
     data: {
       tk: user.$state.userID,
-      usrAccount: ruleForm.usrAccount,
+      usrAccount: getAccount(),
+      usrPwd0: ruleForm.usrPwd0,
       usrPwd: ruleForm.usrPwd,
     }
   }).then((res)=>{
-    emits("close-add-modal")
+    emits("close-pwd-modal")
     if(res.status == 200) {
       ElMessage.success(res.data.msg)
     }
   }).catch((err) => {
-    emits("close-add-modal")
+    emits("close-pwd-modal")
     ElMessage.error('修改密码失败')
   })
+}
+
+const getAccount = () => {
+  let account = changePwdParams.usrAccount || user.$state.userID;
+  return account
 }
 </script>
 
 <template>
     <el-dialog
-      :model-value="addModalVisible"
+      :model-value="pwdModalVisible"
       title="修改密码"
       @close="closeModal(ruleFormRef)"
       :width="650"
       >
       <el-form :model="ruleForm" :rules="rules" ref="ruleFormRef">
         <el-form-item label="账号" prop="usrAccount" :label-width="100">
-          <el-input v-model="ruleForm.usrAccount" value="wzy" autocomplete="off" clearable style="width: 480px" />
+          <el-input v-model="ruleForm.usrAccount" :value="getAccount()" autocomplete="off" clearable readonly style="width: 480px" />
         </el-form-item>
         <el-form-item label="旧密码" prop="usrPwd0" :label-width="100">
           <el-input v-model="ruleForm.usrPwd0" autocomplete="off" show-password clearable style="width: 480px" />
@@ -99,7 +172,7 @@ function addUser() {
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="closeModal(ruleFormRef)">取消</el-button>
-          <el-button type="primary" @click="addUser">确定</el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)">确定</el-button>
         </span>
       </template>
   </el-dialog>

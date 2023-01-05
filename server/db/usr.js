@@ -18,6 +18,18 @@ const UsrTbl = {
             callback(results)
         })
     },
+    updateUsr: (params, callback) => {
+        const sqlParams = [params.role_id, params.usr_name, params.usr_tel, params.usr_account];
+        const sqlStr = `
+            UPDATE user
+            SET role_id=?, usr_name=?, usr_tel=?
+            WHERE usr_account=?
+        `;
+        conn.query(sqlStr, sqlParams, (err, results) => {
+            if(err) return console.log(err.message)
+            callback(results)
+        })
+    },
     queryByPage: (params, callback) => {
         const pageSize = params.pageSize;
         const start = (params.pageNo-1)*pageSize;
@@ -48,6 +60,18 @@ const UsrTbl = {
     queryByID: (params, callback) => {
         const sqlStr = 'SELECT usr_account, usr_name FROM user WHERE usr_account=?';
         conn.query(sqlStr, params.usr_account, (err, results) => {
+            if(err) return console.log(err.message)
+            callback(results)
+        })
+    },
+    updatePwd: (params, callback) => {
+        const sqlParams = [params.pwd, params.usr_account, params.pwd0];
+        const sqlStr = `
+            UPDATE user
+            SET usr_pwd=?
+            WHERE usr_account=? AND usr_pwd = ?
+        `;
+        conn.query(sqlStr, sqlParams, (err, results) => {
             if(err) return console.log(err.message)
             callback(results)
         })
