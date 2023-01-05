@@ -1,30 +1,40 @@
 <script lang="ts" setup>
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { User, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import axios from 'axios';
 import { useUserStore } from '@/stores/user';
 import { getAPI } from '@/common/utils/api';
+import ChangePwdModal from '@/common/components/changePwdModal.vue';
 
 
+interface User {
+  usrAccount: string,
+  usrPwd: string,
+  usrName: string,
+  usrRole: number,
+  usrTel: string,
+  usrCorp: string
+}
 const user = useUserStore()
 const router = useRouter()
+const pwdModalVisible = ref(false)
+let changePwdParams = reactive(<User>{
+  usrAccount: ''
+})
 const squareUrl = '@/assets/avatar.png'
 
 const handleCommand = (command: string | number | object) => {
     switch(command) {
         case 'changePwd':
-            handleChangePwd()
+            openChangePwdModal()
             break;
         case 'logout':
             handleLogout()
             break;
     }
 }
-
-function handleChangePwd() {
-
-} 
 
 function handleLogout() {
     const url = getAPI('/user/logout')
@@ -46,6 +56,15 @@ function handleLogout() {
         ElMessage.error(error.response.data.msg)
     });
 }
+
+function openChangePwdModal() {
+    changePwdParams.usrAccount = user.$state.userID
+    pwdModalVisible.value = true
+}
+
+function closeChangePwdModal() {
+  pwdModalVisible.value =false
+}
 </script>
 
 <template>
@@ -64,6 +83,7 @@ function handleLogout() {
             </template>
         </el-dropdown>
     </div>
+    <ChangePwdModal :pwd-modal-visible="pwdModalVisible" :change-pwd-params="changePwdParams" @close-pwd-modal="closeChangePwdModal" />
   </template>
 
 <style scoped>
