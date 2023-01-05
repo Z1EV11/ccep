@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { reactive, ref, toRefs } from 'vue'
-import { genFileId, ElMessage } from 'element-plus'
+import { genFileId, ElMessage, type FormRules } from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile, FormInstance } from 'element-plus'
 import axios from 'axios';
+import { useUserStore } from '@/stores/user';
 import { getAPI } from '@/common/utils/api';
 
+const user = useUserStore()
 const props = defineProps({
   addModalVisible: Boolean
 })
@@ -13,12 +15,14 @@ const emits = defineEmits(['close-add-modal'])
 
 const ruleFormRef = ref<FormInstance>()
 const upload = ref<UploadInstance>()
+const prjExpertOptions = ref([])
 const ruleForm = reactive({
   prjID: '',
   prjName: '',
   evalMehod: '',
   prjClient: '',
-  prjExperts: ''
+  prjExpert: '',
+  inputFile: true
 })
 const uploadPath = getAPI('/ccep/eval_upload')
 const evalMethodOptions = [
@@ -32,6 +36,50 @@ const evalMethodOptions = [
   }
 ]
 const downloadEvalTemplate = getAPI('/ccep/get_eval_template')
+const rules = reactive<FormRules>({
+  prjID: [
+    {
+      required: true,
+      message: '请输入项目编号',
+      trigger: 'blur'
+    }
+  ],
+  prjName: [
+    {
+      required: true,
+      message: '请输入项目名称',
+      trigger: 'blur',
+    }
+  ],
+  evalMehod: [
+    {
+      required: true,
+      message: '请选择评估方法',
+      trigger: 'blur',
+    }
+  ],
+  prjClient: [
+    {
+      required: true,
+      message: '请输入委托方',
+      trigger: 'blur',
+    }
+  ],
+  prjExpert: [
+    {
+      required: true,
+      message: '请选择评估人',
+      trigger: 'blur',
+    }
+  ],
+  inputFile: [
+    {
+      required: true,
+      message: '请上传评估文件',
+      trigger: 'blur',
+    }
+  ]
+})
 
 /*
   overwrite previous file
@@ -43,11 +91,52 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.handleStart(file)
 }
 
+function queryExpert() {
+  axios({
+    method: 'post',
+    url: getAPI('/user/query_exp'),
+    data: {
+      tk: user.$state.userID
+    }
+  }).then((res)=>{
+    if(res.status == 200) {
+      let dataList: Object[] = []
+      res.data.usrList && res.data.usrList.forEach((item: any) => {
+        dataList.push({
+          value: item.usr_account,
+          label: item.usr_name
+        })
+      })
+      prjExpertOptions.value = dataList
+    }
+  }).catch((err) => {
+    ElMessage.error('查询评估专家失败')
+  })
+}
+
 /**
  * Upload EVAL excel
  */
-const submitUpload = () => {
-  upload.value!.submit()
+// const submitUpload = () => {
+//   upload.value!.submit()
+// }
+
+const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate((valid: any) => {
+    if (valid) {
+      // console.log('submit!')
+      upload.value!.submit()
+    } else {
+      // console.log('error submit!')
+      ElMessage.error('请按提示输入信息')
+      return false
+    }
+  })
+}
+
+function openModal(formEl: FormInstance | undefined) {
+  queryExpert()
 }
 
 /**
@@ -71,6 +160,7 @@ function addPRJ(res: any) {
         prjID: ruleForm.prjID,
         prjName: ruleForm.prjName,
         evalMehod: ruleForm.evalMehod,
+        evalExpert: ruleForm.prjExpert,
         prjClient: ruleForm.prjClient,
         inputFile: res.data.inputFile,
         outputFile: res.data.outputFile
@@ -79,51 +169,28 @@ function addPRJ(res: any) {
       emits("close-add-modal")
       if(res.status == 200) {
         ElMessage({
-          message: '评估已完成，项目新增成功',
+          message: '已完成评估，项目新增成功',
           type: 'success'
         })
-      } else {
-        ElMessage.error('项目新增失败')
       }
+    }).catch((err) => {
+      ElMessage.error('项目新增失败')
     })
   } else {
     ElMessage.error('项目新增失败')
   }
 }
-
-// mock
-const prjExpertsOptions = [
-  {
-    value: 'Option1',
-    label: 'Option1',
-  },
-  {
-    value: 'Option2',
-    label: 'Option2',
-  },
-  {
-    value: 'Option3',
-    label: 'Option3',
-  },
-  {
-    value: 'Option4',
-    label: 'Option4',
-  },
-  {
-    value: 'Option5',
-    label: 'Option5',
-  }
-]
 </script>
 
 <template>
     <el-dialog
       :model-value="addModalVisible"
       title="新增项目"
+      @open="openModal(ruleFormRef)"
       @close="closeModal(ruleFormRef)"
       :width="650"
       >
-      <el-form :model="ruleForm" ref="ruleFormRef">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleFormRef">
         <el-form-item label="项目编号" prop="prjID" :label-width="100">
           <el-input v-model="ruleForm.prjID" autocomplete="off" clearable style="width: 480px" />
         </el-form-item>
@@ -147,21 +214,21 @@ const prjExpertsOptions = [
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="评估人" prop="prjExperts" :label-width="100" >
+        <el-form-item label="评估人" prop="prjExpert" :label-width="100" >
           <el-select
-            v-model="ruleForm.prjExperts"
+            v-model="ruleForm.prjExpert"
             placeholder=""
             style="width: 240px"
           >
             <el-option
-              v-for="item in prjExpertsOptions"
+              v-for="item in prjExpertOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="文件上传" :label-width="100">
+        <el-form-item label="文件上传" :label-width="100" prop="inputFile">
           <el-upload
             ref="upload"
             :action=uploadPath
@@ -188,7 +255,7 @@ const prjExpertsOptions = [
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="closeModal(ruleFormRef)">取消</el-button>
-          <el-button type="primary" @click="submitUpload">确定</el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)">确定</el-button>
         </span>
       </template>
   </el-dialog>

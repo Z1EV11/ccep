@@ -183,5 +183,23 @@ router.post('/edit_usr', function(req, res, next) {
   }
 });
 
+router.post('/query_exp', function(req, res, next) {
+  if (req.session.token !== req.body.tk) {
+    res.status(500).send({
+      msg: '请重新登录'
+    })
+  } else {
+    UsrTbl.queryRole2Name({
+      usr_account: req.body.tk
+    }, (results, conn) => {
+      // conn.end();
+      res.send({
+        usrList: Object.values(results),
+        msg: '评估专家查询成功'
+      });
+    });
+  }
+});
+
 
 module.exports = router;

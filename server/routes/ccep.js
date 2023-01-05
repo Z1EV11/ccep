@@ -49,19 +49,18 @@ router.get('/get_eval_template', function(req, res, next) {
 */
 router.post('/eval_upload', upload.single('file'), (req, res, next) => {
   console.log('upload', req.file);
-  var rootDir = req.app.get('rootDir');
-  var inputPath = path.join(rootDir, 'public/files/eval_upload/',req.file.filename); 
-  data = office.readEvalXlsx(inputPath);
-  var templatePath = path.join(rootDir, 'public/files/template/RPT_template_221121.docx'); // [***] config
-  outputFile = req.file.filename.substring(0, req.file.filename.lastIndexOf("."))
-  var outputPath = path.join(rootDir, 'public/files/eval_rpt', `${outputFile}.docx`);
-  office.generateRptDocx(templatePath, outputPath, data);
+  let outputFile = req.file.filename.substring(0, req.file.filename.lastIndexOf("."))
+  outputFile = `${outputFile}.docx`
+  // let outputPath = path.join(rootDir, 'public/files/eval_rpt', `${outputFile}.docx`);
+  // evalData = office.readEvalXlsx(inputPath, req.body);
+  // office.generateRptDocx(templatePath, outputPath, evalData);
   res.send({
     status: 200,
     data: {
       inputFile: req.file.filename,
       outputFile
-    }
+    },
+    msg: '上传成功'
   })
   // res.download(outputPath);
   // fs.unlink(inputPath);
@@ -69,21 +68,28 @@ router.post('/eval_upload', upload.single('file'), (req, res, next) => {
 });
 
 router.post('/add_prj', function(req, res, next) {
-  var outputFile = `${req.body.outputFile}.docx`; // [***] config
+  const rootDir = req.app.get('rootDir');
+  let inputPath = path.join(rootDir, 'public/files/eval_upload/', req.body.inputFile); 
+  let templatePath = path.join(rootDir, 'public/files/template/RPT_template_221121.docx'); // [***] config
+  let outputPath = path.join(rootDir, 'public/files/eval_rpt', `${req.body.outputFile}.docx`);
+  let evalData = office.readEvalXlsx(inputPath, req.body);
+  office.generateRptDocx(templatePath, outputPath, evalData);
   // 数据库存项目信息
   PrjTbl.addPrj({
     prj_id: req.body.prjID,
     prj_name: req.body.prjName,
-    eval_method: req.body.evalMethod,
+    eval_method: req.body.evalMehod,
     prj_client: req.body.prjClient,
     eval_time: moment().format("YYYY-MM-DD-HH:mm:ss"),
-    eval_experts: req.body.evalExperts,
+    eval_expert: req.body.evalExpert,
     eval_file: req.body.inputFile,
-    rpt_file: outputFile
+    rpt_file: req.body.outputFile
+  }, (results) => {
+    res.send({
+      status: 200
+    })
   });
-  res.send({
-    status: 200
-  })
+
 });
 
 /*

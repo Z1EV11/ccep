@@ -64,6 +64,20 @@ const UsrTbl = {
             callback(results)
         })
     },
+    queryRole2Name: (params, callback) => {
+        const sqlParams = [params.usr_account, params.usr_account];
+        const sqlStr = `
+            SELECT usr_account, usr_name
+            FROM user
+            WHERE usr_account = ? OR role_id > (
+                SELECT role_id FROM user WHERE usr_account = ?
+            );
+        `;
+        conn.query(sqlStr, sqlParams, (err, results) => {
+            if(err) return console.log(err.message)
+            callback(results)
+        })
+    },
     updatePwd: (params, callback) => {
         const sqlParams = [params.pwd, params.usr_account, params.pwd0];
         const sqlStr = `

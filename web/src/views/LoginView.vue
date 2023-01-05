@@ -67,7 +67,8 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       router.push('/evaluation')
     }
   }).catch((err) => {
-    ElMessage.error(err.response.data.msg)
+    const msg = err.response && err.response.data && err.response.data.msg
+    ElMessage.error(msg)
   })
 }
 </script>

@@ -44,7 +44,7 @@ const evalMehodMap: any = {
 }
 
 onMounted(() => {
-  console.log('onMounted', pageNo.value)
+  // console.log('onMounted', pageNo.value)
   queryRefresh({
     pageNo: pageNo.value
   })
@@ -54,7 +54,7 @@ onMounted(() => {
   Query PRJ
 */
 function queryRefresh(params: any) {
-  console.log('queryRefresh', params)
+  // console.log('queryRefresh', params)
   axios({
     method: 'post',
     url: getAPI('/ccep/query_prj'),
@@ -97,6 +97,9 @@ const openAddModal = () => {
 
 const closeAddModal = () => {
   addModalVisible.value = false
+  queryRefresh({
+    pageNo: pageNo.value
+  })
 }
 
 /*
@@ -132,7 +135,7 @@ function openDetailModal(index: number, row: any) {
 
 const closeDetailModal = () => {
   detailModalVisible.value = false
-  console.log('closeDetailModal')
+  // console.log('closeDetailModal')
 }
 
 /*
@@ -152,7 +155,7 @@ function handleDel(index: number, row: any) {
         message: '删除成功',
         type: 'success'
       })
-      console.log('handleDel', pageNo.value)
+      // console.log('handleDel', pageNo.value)
       queryRefresh({pageNo: 1})
     } else {
       ElMessage.error('删除失败')
@@ -164,7 +167,7 @@ function handleDel(index: number, row: any) {
   handle Pagination
 */
 const handleCurChange = (val: number) => {
-  console.log('handleCurChange', val)
+  // console.log('handleCurChange', val)
   queryRefresh({
     pageNo: val
   })
@@ -178,18 +181,6 @@ const isDeletable = (row: any) => {
   }
   return deletable
 }
-
-/* mock */ 
-// tableData = [
-//   {
-//     name: '重庆信息通信咨询设计院有限公司',
-//     type: '估算功能点',
-//     client: '重庆信息通信咨询设计院有限公司',
-//     time: '2016-05-03',
-//     expert: '董立陶',
-//     experts: '董立陶'
-//   },
-// ]
 </script>
 
 <template>

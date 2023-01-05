@@ -1,18 +1,18 @@
 const fs = require("fs");
 
 const xlsx = require("node-xlsx");
-const easy_template = require("easy-template-x")
+const easy_template = require("easy-template-x");
 
 /*
   读取评估表格 .xls, .xlsx
 */
-function readEvalXlsx(filePath) {
+function readEvalXlsx(filePath, params) {
   var sheets = xlsx.parse(filePath);
-  var data = sheets2data(sheets);
+  var data = sheets2data(sheets, params);
   return data;
 }
 
-function sheets2data(sheets) {
+function sheets2data(sheets, params) {
   var basicInfo = {};
   var assessTable = [];
   var nesma = {};
@@ -22,11 +22,10 @@ function sheets2data(sheets) {
     }
     let sheetData = sheets[i].data;
     if(i == 0){
-      basicInfo.id = 170412;
-      basicInfo.client = sheetData[1][1]; // [!!!] demand confirmation
-      basicInfo.project = sheetData[1][1];
-      basicInfo.expert1 = '蒋兴涛'; // [!!!] demand confirmation
-      basicInfo.expert2 = '周冰';   // [!!!]
+      basicInfo.id = params.prjID;
+      basicInfo.client = params.prjClient;
+      basicInfo.project = params.prjName;
+      basicInfo.expert1 = params.evalExpert;
       basicInfo.document = sheetData[4][1];
       continue;
     }

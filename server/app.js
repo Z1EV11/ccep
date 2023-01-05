@@ -53,13 +53,13 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.use(function(req,res,next) {
-  if(req.session.token) {
-    next();
-  } else {
-    return res.redirect('/login')
-  }
-})
+// app.use(function(req,res,next) {
+//   if(req.session.token) {
+//     next();
+//   } else {
+//     return res.redirect('/login')
+//   }
+// })
 
 // global var
 app.set('rootDir', __dirname);
