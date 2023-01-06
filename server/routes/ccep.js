@@ -71,7 +71,7 @@ router.post('/add_prj', function(req, res, next) {
   const rootDir = req.app.get('rootDir');
   let inputPath = path.join(rootDir, 'public/files/eval_upload/', req.body.inputFile); 
   let templatePath = path.join(rootDir, 'public/files/template/RPT_template_221121.docx'); // [***] config
-  let outputPath = path.join(rootDir, 'public/files/eval_rpt', `${req.body.outputFile}.docx`);
+  let outputPath = path.join(rootDir, 'public/files/eval_rpt', `${req.body.outputFile}`);
   let evalData = office.readEvalXlsx(inputPath, req.body);
   office.generateRptDocx(templatePath, outputPath, evalData);
   // 数据库存项目信息

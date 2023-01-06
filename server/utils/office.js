@@ -12,6 +12,12 @@ function readEvalXlsx(filePath, params) {
   return data;
 }
 
+function heandleNumber(data) {
+  let num = Number(data);
+  num = Math.ceil(num*100)/100
+  return num
+}
+
 function sheets2data(sheets, params) {
   var basicInfo = {};
   var assessTable = [];
@@ -40,21 +46,22 @@ function sheets2data(sheets, params) {
       nesma.unit_price = sheetData[9][1];
       nesma.UFP = sheetData[13][1]; // [!!!] decimal point
       nesma.S = sheetData[13][2];   // [!!!]
-      nesma.price2 = sheetData[13][5];
+      nesma.price2 = heandleNumber(sheetData[13][5]);
       nesma.prod_rate0 = sheetData[13][3];
       nesma.prod_rate = sheetData[14][3];
       nesma.prod_rate1 = sheetData[15][3];
-      nesma.workload0 = sheetData[13][4];
-      nesma.workload = sheetData[14][4];
-      nesma.workload1 = sheetData[15][4];
-      nesma.price0 = sheetData[13][6];
-      nesma.price = sheetData[14][6];
-      nesma.price1 = sheetData[15][6];
+      nesma.workload0 = heandleNumber(sheetData[13][4]);
+      nesma.workload = heandleNumber(sheetData[14][4]);
+      nesma.workload1 = heandleNumber(sheetData[15][4]);
+      nesma.price0 = heandleNumber(sheetData[13][6]);
+      nesma.price = heandleNumber(sheetData[14][6]);
+      nesma.price1 = heandleNumber(sheetData[15][6]);
       continue;
     }
     if(i == 3) {
       for(let j=3; j<sheetData.length-1; j++) {
         assessTable.push({
+          FP_id: sheetData[j][0],
           sub_sys: sheetData[j][1],
           module: sheetData[j][2],
           FP_item: sheetData[j][3],
@@ -88,13 +95,16 @@ function sheets2data(sheets, params) {
         price0: nesma.price0,
         price: nesma.price,
         price1: nesma.price1,
+        total_price0: nesma.price0, 
+        total_price: nesma.price,
+        total_price1: nesma.price1,
         document: basicInfo.document,
         sys_factor: nesma.sys_factor,
         change_factor: nesma.change_factor,
         prod_rate: nesma.prod_rate,
         field_factor: nesma.field_factor,
         type_factor: nesma.type_factor,
-        quality_factpr: nesma.quality_factor,
+        quality_factor: nesma.quality_factor,
         lang_factor: nesma.lang_factor,
         exp_factor: nesma.exp_factor,
         unit_price: nesma.unit_price
@@ -118,7 +128,7 @@ function sheets2data(sheets, params) {
         prod_rate1: nesma.prod_rate1,
         field_factor: nesma.field_factor,
         type_factor: nesma.type_factor,
-        quality_factpr: nesma.quality_factor,
+        quality_factor: nesma.quality_factor,
         lang_factor: nesma.lang_factor,
         exp_factor: nesma.exp_factor,
         workload0: nesma.workload0,
@@ -129,9 +139,9 @@ function sheets2data(sheets, params) {
         price: nesma.price,
         price1: nesma.price1,
         price2: nesma.price2, // non-labor cost
-        total_price0: nesma.price0+nesma.price2,
+        total_price0: nesma.price0+nesma.price2, 
         total_price: nesma.price+nesma.price2,
-        total_price1: nesma.price1+nesma.price2,
+        total_price1: nesma.price1+nesma.price2
       }
     ]
   };

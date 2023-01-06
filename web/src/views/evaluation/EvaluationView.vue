@@ -124,8 +124,8 @@ function openDetailModal(index: number, row: any) {
       // detailModalParams.expert = prjData.eval_experts,
       detailFormParams.expName = prjData.usr_name
       detailFormParams.expTel = prjData.usr_tel
-      detailFormParams.evalPath = prjData.eval_path
-      detailFormParams.rptPath = prjData.rpt_path
+      detailFormParams.evalPath = prjData.eval_file
+      detailFormParams.rptPath = prjData.rpt_file
       detailModalVisible.value = true
     } else {
       ElMessage.error('查询详情失败')
