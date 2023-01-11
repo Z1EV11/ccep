@@ -11,6 +11,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/captcha', function(req, res, next) {
+  console.log('/captcha');
   const cap = svgCaptcha.create({
       // 翻转颜色
       inverse: false,
@@ -24,7 +25,7 @@ router.get('/captcha', function(req, res, next) {
       height: 30,
   });
   req.session.captcha = cap.text.toLowerCase(); // session 存储验证码数值
-  console.log(req.session)
+  console.log('captcha', req.session)
   res.type('svg'); // 响应的类型
   res.send(cap.data)
 });

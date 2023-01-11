@@ -18,7 +18,7 @@ import UserInfo from '@/common/components/UserInfo.vue'
       <el-main>
         <RouterView />
       </el-main>
-      <el-footer>Footer</el-footer>
+      <!-- <el-footer></el-footer> -->
     </el-container>
   </div>
 </template>
@@ -26,6 +26,9 @@ import UserInfo from '@/common/components/UserInfo.vue'
 <style scoped>
 .common-layout>.el-container{
   height: 100vh;
+}
+.el-header {
+  background-color: #142d4b;
 }
 nav{
     display: flex;
@@ -36,6 +39,7 @@ nav{
 }
 .logo-wrapper {
     width: 20%;
+    color: rgb(255 255 255);
 }
 .el-main {
   display: flex;

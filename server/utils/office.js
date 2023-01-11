@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const xlsx = require("node-xlsx");
 const easy_template = require("easy-template-x");
+const { param } = require("../routes/ccep");
 
 /*
   读取评估表格 .xls, .xlsx
@@ -22,8 +23,9 @@ function sheets2data(sheets, params) {
   var basicInfo = {};
   var assessTable = [];
   var nesma = {};
+  var price2Table = [];
   for(let i=0; i<sheets.length-1; i++) {
-    if(i == 2 || i == 4) {
+    if(i == 4) {
       continue;
     }
     let sheetData = sheets[i].data;
@@ -58,7 +60,21 @@ function sheets2data(sheets, params) {
       nesma.price1 = heandleNumber(sheetData[15][6]);
       continue;
     }
-    if(i == 3) {
+    if(params.evalMehod === 'NESMA_IND' && i == 2) {
+      for(let j=3; j<sheetData.length-1; j++) {
+        assessTable.push({
+          FP_id: sheetData[j][0],
+          sub_sys: sheetData[j][1],
+          module: sheetData[j][2],
+          FP_item: sheetData[j][3],
+          FP_type: sheetData[j][4],
+          FP_val: sheetData[j][5],
+          FP_remark: sheetData[j][6]
+        });
+      }
+      continue;
+    }
+    if(params.evalMehod === 'NESMA_EVAL' && i == 3) {
       for(let j=3; j<sheetData.length-1; j++) {
         assessTable.push({
           FP_id: sheetData[j][0],
@@ -73,7 +89,17 @@ function sheets2data(sheets, params) {
       continue;
     }
     if(i == 5) {
-
+      for(let j=1; j<sheetData.length-1; j++) {
+        price2Table.push({
+          price2_type1: sheetData[j][0],
+          price2_type2: sheetData[j][1],
+          price2_unitprice: sheetData[j][2],
+          price2_amount: sheetData[j][3],
+          price2_price: sheetData[j][4],
+          price2_remark: sheetData[j][5] || ''
+        });
+      }
+      break;
     }
   }
   var date = new Date();
@@ -141,7 +167,8 @@ function sheets2data(sheets, params) {
         price2: nesma.price2, // non-labor cost
         total_price0: nesma.price0+nesma.price2, 
         total_price: nesma.price+nesma.price2,
-        total_price1: nesma.price1+nesma.price2
+        total_price1: nesma.price1+nesma.price2,
+        price2Table
       }
     ]
   };

@@ -19,7 +19,7 @@ const prjExpertOptions = ref([])
 const ruleForm = reactive({
   prjID: '',
   prjName: '',
-  evalMehod: '',
+  evalMehod: 'NESMA_EVAL',
   prjClient: '',
   prjExpert: '',
   inputFile: true
@@ -35,7 +35,16 @@ const evalMethodOptions = [
     label: '功能点估算法',
   }
 ]
-const downloadEvalTemplate = getAPI('/ccep/get_eval_template')
+const downloadEvalTemplate = (evalMehod: string) => {
+  if(evalMehod === 'NESMA_IND') return getAPI('/ccep/get_eval_template?t=1')
+  else if(evalMehod === 'NESMA_EVAL') return getAPI('/ccep/get_eval_template?t=2')
+  else return ''
+}
+const getTemplateName = (evalMehod: string) => {
+  if(evalMehod === 'NESMA_IND') return '功能点指示法'
+  else if(evalMehod === 'NESMA_EVAL') return '功能点估算法'
+  else return ''
+}
 const rules = reactive<FormRules>({
   prjID: [
     {
@@ -246,7 +255,7 @@ function addPRJ(res: any) {
             </el-button> -->
             <template #tip>
               <div class="el-upload__tip text-red">
-                <el-link :href="downloadEvalTemplate" :underline="false" type="primary">软件造价评估结果记录表模板下载</el-link>
+                <el-link :href="downloadEvalTemplate(ruleForm.evalMehod)" :underline="false" type="primary">软件造价评估结果记录表({{getTemplateName(ruleForm.evalMehod)}})模板下载</el-link>
               </div>
             </template>
           </el-upload>

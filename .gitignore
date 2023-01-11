@@ -1,6 +1,6 @@
 /server/node_modules
 /server/a.js
-/server/public/files/assess
-/server/public/files/upload
+/server/public/files/eval_rpt
+/server/public/files/eval_upload
 /server/db/db_config.js
 /web/node_modules

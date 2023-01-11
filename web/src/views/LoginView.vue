@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import CryptoJS from 'crypto-js'
 import { User, Unlock, Position } from '@element-plus/icons-vue'
 import { getAPI } from '@/common/utils/api';
 import axios from 'axios';
@@ -16,6 +17,7 @@ const ruleForm = reactive({
 })
 const captchaURL = ref(getAPI('/captcha'))
 const router = useRouter()
+const md5Key = 'CQCDI'
 
 const rules = reactive<FormRules>({
   account: [
@@ -29,14 +31,26 @@ const rules = reactive<FormRules>({
     {
       required: true,
       message: '请输入8-12位密码',
-      trigger: 'change',
+      trigger: 'blur',
+    },
+    {
+      min: 8,
+      max: 12,
+      message: '请输入8-12位密码',
+      trigger: 'blur',
     },
   ],
   captcha: [
     {
       required: true,
       message: '请输入验证码',
-      trigger: 'change',
+      trigger: 'blur',
+    },
+    {
+      min: 4,
+      max: 4,
+      message: '请输4位入验证码',
+      trigger: 'blur',
     },
   ]
 })
@@ -53,7 +67,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
     url,
     data: {
       account: ruleForm.account,
-      password: ruleForm.password,
+      password: CryptoJS.MD5(`${ruleForm.password}${md5Key}`).toString(),
       captcha: ruleForm.captcha
     }
   }).then((res) => {
@@ -116,10 +130,12 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   width: 100%;
   height: 100%;
   margin: 0;
+  background-image: url(@/assets/login.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 .login-left {
   display: flex;;
-  width: 500px;
   height: 100%;
 }
 .login-right {
@@ -127,7 +143,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   justify-content: center;
   width: 1000px;
   height: 100%;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   align-items: center;
 }
 .login-wrapper {
@@ -138,7 +154,8 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   width: 500px;
   height: 400px;
   border: 1px solid var(--el-color-primary-light-3);
-  border-radius: 3px;
+  border-radius: 5px;
+  background-color: white;
 }
 .login-wrapper>div {
   display: flex;
@@ -182,5 +199,8 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   width: 70%;
   height: 38px;
   border-radius: 16px;
+}
+.el-form-item__error {
+  left: -55px !important;
 }
 </style>

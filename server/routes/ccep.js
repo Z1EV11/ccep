@@ -41,7 +41,16 @@ var upload = multer({
   download the template of evaluation excel
 */
 router.get('/get_eval_template', function(req, res, next) {
-  res.download('./public/files/template/EVAL_template_221121.xls'); // [***] config
+  try {
+    templatePath = `./public/files/template/EVAL_template${req.query.t}_221121.xls`;
+    res.download(templatePath)
+  } catch(err) {
+    res.status(500).send({
+      msg: '获取模板失败'
+    })
+  }
+
+  // res.download('./public/files/template/EVAL_template2_221121.xls'); // [***] config
 });
 
 /*

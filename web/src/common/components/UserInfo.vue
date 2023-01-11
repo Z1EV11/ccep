@@ -69,9 +69,8 @@ function closeChangePwdModal() {
 
 <template>
     <div class="user-wrapper">
-        <div><el-icon><User /></el-icon></div>
-        <div><el-avatar shape="square" :size="29" :src="squareUrl" /></div>
-        <el-dropdown class="user-dropdown" @command="handleCommand">
+        <div class="user-avatar"><el-icon color="#FFFFFF"><User /></el-icon></div>
+        <el-dropdown class="user-dropdown" @command="handleCommand" :divided="true">
             <span class="el-dropdown-link">
                 {{user.$state.userName}}<el-icon class="el-icon--right"><arrow-down /></el-icon>
             </span>
@@ -99,10 +98,19 @@ function closeChangePwdModal() {
     align-items: center;
     height: 100%;
 }
+.user-avatar{
+    position: relative;
+    top: 2px;
+}
 .user-dropdown {
+    display: inline-flex;
     margin-left: 5px;
     font-size: 18px;
     width: 88px;
+    color: rgb(255 255 255) !important;
+}
+.user-dropdown:hover {
+    cursor: pointer;
 }
 </style>
   

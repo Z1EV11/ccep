@@ -216,6 +216,8 @@ const handleCurChange = (val: any) => {
   width: 100%;
   text-align: center;
   height: 100%;
+  border-radius: 10px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 .table-option-title {
   display: inline-flex;
@@ -223,6 +225,7 @@ const handleCurChange = (val: any) => {
   width: 40%;
   height: 10%;
   font-size: 36px;
+  padding-left: 10px;
 }
 .table-option-wrapper {
   display: inline-flex;
@@ -239,7 +242,6 @@ const handleCurChange = (val: any) => {
   flex-wrap: wrap;
   width: 100%;
   height: 958px;
-  border: 1px solid black;
 }
 .cell {
   height: 40px;

@@ -3,6 +3,7 @@ import { reactive, ref, toRefs } from 'vue'
 import { ElMessage, type FormRules } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 import { useUserStore } from '@/stores/user';
 import { getAPI } from '@/common/utils/api';
 
@@ -15,6 +16,7 @@ interface User {
   usrTel: string,
   usrCorp: string
 }
+const md5Key = 'CQCDI'
 const { pwdModalVisible, changePwdParams } = defineProps<{
   pwdModalVisible: Boolean,
   changePwdParams: User
@@ -128,8 +130,8 @@ function changePwd() {
     data: {
       tk: user.$state.userID,
       usrAccount: getAccount(),
-      usrPwd0: ruleForm.usrPwd0,
-      usrPwd: ruleForm.usrPwd,
+      usrPwd0: CryptoJS.MD5(`${ruleForm.usrPwd0}${md5Key}`).toString(),
+      usrPwd: CryptoJS.MD5(`${ruleForm.usrPwd}${md5Key}`).toString(),
     }
   }).then((res)=>{
     emits("close-pwd-modal")

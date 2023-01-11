@@ -194,7 +194,7 @@ const isDeletable = (row: any) => {
         <!-- <template #header>
             <el-input size="small" placeholder="Type to search" />  
         </template> -->
-        <el-table-column v-if="true"  prop="prjID" label="id" min-width="320" />
+        <el-table-column v-if="false"  prop="prjID" label="id" min-width="320" />
         <el-table-column prop="prjName" label="项目名称" min-width="320" />
         <el-table-column prop="evalMehod" label="评估类型" min-width="110" />
         <el-table-column prop="prjClient" label="送评单位" min-width="320" />
@@ -234,6 +234,8 @@ const isDeletable = (row: any) => {
   width: 100%;
   text-align: center;
   height: 100%;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  border-radius: 10px;
 }
 .table-option-title {
   display: inline-flex;
@@ -241,6 +243,7 @@ const isDeletable = (row: any) => {
   width: 40%;
   height: 10%;
   font-size: 36px;
+  padding-left: 10px;
 }
 .table-option-wrapper {
   display: inline-flex;
@@ -257,7 +260,6 @@ const isDeletable = (row: any) => {
   flex-wrap: wrap;
   width: 100%;
   height: 958px;
-  border: 1px solid black;
 }
 .cell {
   height: 40px;
